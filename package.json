@@ -1,0 +1,32 @@
+{
+  "name": "glass-erp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Inventory, GST billing and accounting SaaS for glass, aluminium and hardware traders",
+  "workspaces": [
+    "database",
+    "api",
+    "web"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vite": "^8.3.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

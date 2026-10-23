@@ -1,0 +1,23 @@
+{
+  "installCommand": "npm --prefix .. install",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/v1/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/healthz",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/readyz",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/((?!api/|assets/|favicon\\.svg).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
