@@ -123,7 +123,8 @@ async function buildInvoice(c: DbClient, input: InvoiceInput) {
 export async function loadSalesInvoice(c: DbClient, id: string): Promise<Record<string, unknown>> {
   const inv = await queryOne(
     c,
-    `SELECT i.*, (i.grand_total - i.amount_credited - i.amount_paid)::numeric(14,2) AS balance_due
+    `SELECT i.*, (i.grand_total - i.amount_credited - i.amount_paid)::numeric(14,2) AS balance_due,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = i.party_id), 'walk_in') AS customer_type
      FROM erp.sales_invoices i WHERE i.id = $1`,
     [id],
   );
@@ -145,7 +146,8 @@ export function registerSalesInvoiceRoutes(app: FastifyInstance, { guards }: App
         c,
         `SELECT id, branch_id, status, invoice_no, invoice_date, due_date, supply_type, party_id, customer_name,
                 customer_gstin, grand_total, amount_paid, amount_credited,
-                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at
+                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.sales_invoices
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::uuid IS NULL OR branch_id = $3)

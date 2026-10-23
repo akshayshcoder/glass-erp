@@ -19,6 +19,7 @@ import {
   Th,
 } from '../../components/ui';
 import { formatDate, rupees } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 
 export function DashboardPage() {
   const { branch } = useCurrentBranch();
@@ -119,7 +120,7 @@ export function DashboardPage() {
                   >
                     <Td className="font-medium text-slate-900">{i.invoiceNo ?? 'Draft'}</Td>
                     <Td>{formatDate(i.invoiceDate)}</Td>
-                    <Td>{i.customerName}</Td>
+                    <Td>{docCustomerLabel(i.customerName, i.customerType)}</Td>
                     <Td right>{rupees(i.grandTotal)}</Td>
                     <Td right>{i.status === 'posted' ? rupees(i.balanceDue) : ''}</Td>
                     <Td>

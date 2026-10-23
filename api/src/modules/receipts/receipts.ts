@@ -84,7 +84,15 @@ export async function insertReceipt(
 }
 
 export async function loadReceipt(c: DbClient, id: string) {
-  const r = await queryOne(c, 'SELECT * FROM erp.receipts WHERE id = $1', [id]);
+  const r = await queryOne(
+    c,
+    `SELECT r.*, p.name AS party_name,
+            coalesce(p.customer_type, 'walk_in') AS customer_type
+     FROM erp.receipts r
+     LEFT JOIN erp.parties p ON p.id = r.party_id
+     WHERE r.id = $1`,
+    [id],
+  );
   if (!r) throw notFound('Receipt');
   const allocations = await query<{
     invoice_id: string;
@@ -128,7 +136,8 @@ export function registerReceiptRoutes(app: FastifyInstance, { guards }: AppConte
     const rows = await request.tx((c) =>
       query(
         c,
-        `SELECT r.*, p.name AS party_name FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
+        `SELECT r.*, p.name AS party_name,
+                coalesce(p.customer_type, 'walk_in') AS customer_type FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
          WHERE ($1::uuid IS NULL OR r.party_id = $1) AND ($2::text IS NULL OR r.status = $2)
            AND ($3::date IS NULL OR r.receipt_date >= $3) AND ($4::date IS NULL OR r.receipt_date <= $4)
          ORDER BY r.receipt_date DESC, r.created_at DESC

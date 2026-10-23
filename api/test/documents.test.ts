@@ -196,6 +196,14 @@ describe('sales invoices', () => {
       amountPaid: '354.00',
       balanceDue: '0.00',
     });
+    // A typed-in name with no party behind it is a walk-in; a party shows its own type.
+    const list = await shop.get('/v1/sales-invoices?pageSize=200');
+    const walkInRow = list.body.items.find((i: { id: string }) => i.id === res.body.id);
+    expect(walkInRow.customerType).toBe('walk_in');
+    const partyRow = list.body.items.find((i: { id: string }) => i.id === inv1);
+    expect(partyRow.customerType).toBe('b2b');
+    expect((await shop.get(`/v1/sales-invoices/${res.body.id}`)).body.customerType).toBe('walk_in');
+    expect((await shop.get('/v1/receipts')).body.items[0].customerType).toBe('walk_in');
     const receipts = await shop.get('/v1/receipts');
     expect(receipts.body.items[0]).toMatchObject({
       amount: '354.00',

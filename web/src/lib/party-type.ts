@@ -15,6 +15,11 @@ export function customerTypeLabel(type: CustomerType | null | undefined, gstin?:
   return gstin ? 'B2B' : 'B2C';
 }
 
+/** Customer on a document (invoice, receipt...): no party behind it means a walk-in. */
+export function docCustomerLabel(name: string | null | undefined, type: CustomerType | null | undefined) {
+  return `${name || 'Cash Sale'} (${customerTypeLabel(type ?? 'walk_in')})`;
+}
+
 /** "Sharma Glass (B2B)" - the name always stays, the type goes in brackets. */
 export function partyLabel(p: {
   name: string;

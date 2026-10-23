@@ -32,6 +32,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { formatDate, formatMoney, formatQty, isZero, rupees } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { BranchModal, formatBranchAddress } from '../settings/branches-page';
 
 /** One invoice: details, print, post, take payment, cancel. */
@@ -239,10 +240,10 @@ export function InvoicePage() {
           <p className="mt-1 font-medium text-slate-900">
             {inv.partyId ? (
               <Link to={`/parties/${inv.partyId}`} className="hover:underline">
-                {inv.customerName}
+                {docCustomerLabel(inv.customerName, inv.customerType)}
               </Link>
             ) : (
-              inv.customerName
+              docCustomerLabel(inv.customerName, inv.customerType)
             )}
           </p>
           <p className="text-sm text-slate-500">

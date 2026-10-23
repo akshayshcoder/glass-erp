@@ -19,6 +19,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { formatMoney, formatQty, rupees, todayIso } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { sumDecimal } from '../../lib/money';
 import { TotalsRows } from '../documents/document-view';
 import { useDocumentPreview } from '../documents/line-items';
@@ -151,7 +152,10 @@ export function NewCreditNotePage() {
       >
         <ArrowLeft className="size-4" /> {inv.invoiceNo}
       </Link>
-      <PageHeader title="Credit note" subtitle={`Against ${inv.invoiceNo} · ${inv.customerName}`} />
+      <PageHeader
+        title="Credit note"
+        subtitle={`Against ${inv.invoiceNo} · ${docCustomerLabel(inv.customerName, inv.customerType)}`}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">

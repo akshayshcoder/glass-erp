@@ -23,6 +23,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { formatDate, rupees, todayIso } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { ReasonDialog, useDocumentActions } from '../documents/actions';
 import { AllocationEditor, allocationRows } from '../documents/allocation-editor';
 import { CustomerPicker } from '../documents/pickers';
@@ -85,7 +86,7 @@ export function ReceiptsPage() {
               >
                 <Td className="font-medium text-slate-900">{r.receiptNo ?? 'Draft'}</Td>
                 <Td>{formatDate(r.receiptDate)}</Td>
-                <Td>{r.partyName ?? 'Walk-in'}</Td>
+                <Td>{docCustomerLabel(r.partyName, r.customerType)}</Td>
                 <Td>{MODE_LABEL[r.mode]}</Td>
                 <Td>{r.referenceNo}</Td>
                 <Td right>{rupees(r.amount)}</Td>
@@ -354,6 +355,12 @@ function ReceiptModal({ id, onClose }: { id: string; onClose: () => void }) {
           <p>
             <StatusBadge status={r.status} />{' '}
             <span className="ml-2 text-slate-600">{formatDate(r.receiptDate)}</span>
+          </p>
+          <p className="text-slate-700">
+            <span className="text-slate-500">From: </span>
+            <span className="font-semibold text-slate-900">
+              {docCustomerLabel(r.partyName, r.customerType)}
+            </span>
           </p>
           <p className="num text-2xl font-semibold text-slate-900">{rupees(r.amount)}</p>
           <p className="text-slate-600">

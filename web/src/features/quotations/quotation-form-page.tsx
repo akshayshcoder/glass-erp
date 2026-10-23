@@ -16,6 +16,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { todayIso } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { TotalsRows } from '../documents/document-view';
 import {
   LineItems,
@@ -136,7 +137,9 @@ function QuotationForm({ quotation }: { quotation: Quotation | null }) {
               />
             ) : keepCustomer && quotation ? (
               <div className="flex items-center justify-between rounded-md bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
-                <p className="font-medium text-slate-900">{quotation.customerName}</p>
+                <p className="font-medium text-slate-900">
+                  {docCustomerLabel(quotation.customerName, quotation.customerType)}
+                </p>
                 <button
                   className="text-sm text-brand-700 hover:underline"
                   onClick={() => setKeepCustomer(false)}

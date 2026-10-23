@@ -53,7 +53,8 @@ export function registerDashboardRoutes(app: FastifyInstance, { guards }: AppCon
       const recent = await query(
         c,
         `SELECT id, invoice_no, invoice_date, customer_name, grand_total, status,
-                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due
+                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.sales_invoices
          WHERE ($1::uuid IS NULL OR branch_id = $1)
          ORDER BY created_at DESC LIMIT 8`,

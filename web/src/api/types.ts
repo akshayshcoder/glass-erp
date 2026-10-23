@@ -214,6 +214,7 @@ export interface InvoiceSummary {
   supplyType: 'b2b' | 'b2c';
   partyId: string | null;
   customerName: string;
+  customerType?: CustomerType;
   customerGstin: string | null;
   grandTotal: string;
   amountPaid: string;
@@ -255,6 +256,7 @@ export interface Dashboard {
     invoiceNo: string | null;
     invoiceDate: string;
     customerName: string;
+    customerType?: CustomerType;
     grandTotal: string;
     status: DocStatus;
     balanceDue: string;
@@ -282,6 +284,7 @@ export interface Quotation extends PricedDocument {
   supplyType: 'b2b' | 'b2c';
   partyId: string | null;
   customerName: string;
+  customerType?: CustomerType;
   customerGstin: string | null;
   customerPhone: string | null;
   placeOfSupply: string;
@@ -341,6 +344,7 @@ export interface CreditNote extends PricedDocument {
   reason: 'sales_return' | 'rate_difference' | 'discount' | 'deficiency' | 'other';
   restock: boolean;
   customerName: string;
+  customerType?: CustomerType;
   customerGstin: string | null;
   placeOfSupply: string;
   sellerStateCode: string;
@@ -356,6 +360,7 @@ export interface Receipt {
   receiptDate: string;
   partyId: string | null;
   partyName?: string | null;
+  customerType?: CustomerType;
   mode: PaymentMode;
   amount: string;
   referenceNo: string | null;

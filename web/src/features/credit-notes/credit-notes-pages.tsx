@@ -20,6 +20,7 @@ import {
   Th,
 } from '../../components/ui';
 import { formatDate, rupees } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { openPdf } from '../../lib/pdf';
 import { ReasonDialog, useDocumentActions } from '../documents/actions';
 import { LinesCard, PartyCard } from '../documents/document-view';
@@ -97,7 +98,7 @@ export function CreditNotesPage() {
               >
                 <Td className="font-medium text-slate-900">{n.noteNo ?? 'Draft'}</Td>
                 <Td>{formatDate(n.noteDate)}</Td>
-                <Td>{n.customerName}</Td>
+                <Td>{docCustomerLabel(n.customerName, n.customerType)}</Td>
                 <Td>{n.invoiceNo}</Td>
                 <Td>
                   {REASON_LABEL[n.reason]} {n.restock && <Badge tone="blue">Restocked</Badge>}
@@ -219,10 +220,10 @@ export function CreditNotePage() {
           name={
             n.partyId ? (
               <Link to={`/parties/${n.partyId}`} className="hover:underline">
-                {n.customerName}
+                {docCustomerLabel(n.customerName, n.customerType)}
               </Link>
             ) : (
-              n.customerName
+              docCustomerLabel(n.customerName, n.customerType)
             )
           }
           lines={[n.customerGstin ? `GSTIN ${n.customerGstin}` : null, n.remarks]}

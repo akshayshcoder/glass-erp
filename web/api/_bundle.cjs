@@ -194693,7 +194693,9 @@ var ListQuery = PageQuery.extend({
 async function loadCreditNote(c, id) {
   const cn = await queryOne(
     c,
-    `SELECT n.*, i.invoice_no FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
+    `SELECT n.*, i.invoice_no,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
+     FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
      WHERE n.id = $1`,
     [id]
   );
@@ -194776,7 +194778,8 @@ function registerCreditNoteRoutes(app, { guards }) {
       (c) => query(
         c,
         `SELECT n.id, n.branch_id, n.status, n.note_no, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
-                n.customer_name, n.reason, n.restock, n.grand_total
+                n.customer_name, n.reason, n.restock, n.grand_total,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
          FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
          WHERE ($1::uuid IS NULL OR n.invoice_id = $1) AND ($2::uuid IS NULL OR n.party_id = $2)
            AND ($3::text IS NULL OR n.status = $3)
@@ -194908,7 +194911,8 @@ function registerDashboardRoutes(app, { guards }) {
       const recent = await query(
         c,
         `SELECT id, invoice_no, invoice_date, customer_name, grand_total, status,
-                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due
+                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.sales_invoices
          WHERE ($1::uuid IS NULL OR branch_id = $1)
          ORDER BY created_at DESC LIMIT 8`,
@@ -196083,7 +196087,15 @@ async function insertReceipt(c, b, idempotencyKey = null) {
   return receipt.id;
 }
 async function loadReceipt(c, id) {
-  const r = await queryOne(c, "SELECT * FROM erp.receipts WHERE id = $1", [id]);
+  const r = await queryOne(
+    c,
+    `SELECT r.*, p.name AS party_name,
+            coalesce(p.customer_type, 'walk_in') AS customer_type
+     FROM erp.receipts r
+     LEFT JOIN erp.parties p ON p.id = r.party_id
+     WHERE r.id = $1`,
+    [id]
+  );
   if (!r) throw notFound("Receipt");
   const allocations = await query(
     c,
@@ -196118,7 +196130,8 @@ function registerReceiptRoutes(app, { guards }) {
     const rows = await request.tx(
       (c) => query(
         c,
-        `SELECT r.*, p.name AS party_name FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
+        `SELECT r.*, p.name AS party_name,
+                coalesce(p.customer_type, 'walk_in') AS customer_type FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
          WHERE ($1::uuid IS NULL OR r.party_id = $1) AND ($2::text IS NULL OR r.status = $2)
            AND ($3::date IS NULL OR r.receipt_date >= $3) AND ($4::date IS NULL OR r.receipt_date <= $4)
          ORDER BY r.receipt_date DESC, r.created_at DESC
@@ -196219,7 +196232,8 @@ async function buildInvoice(c, input2) {
 async function loadSalesInvoice(c, id) {
   const inv = await queryOne(
     c,
-    `SELECT i.*, (i.grand_total - i.amount_credited - i.amount_paid)::numeric(14,2) AS balance_due
+    `SELECT i.*, (i.grand_total - i.amount_credited - i.amount_paid)::numeric(14,2) AS balance_due,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = i.party_id), 'walk_in') AS customer_type
      FROM erp.sales_invoices i WHERE i.id = $1`,
     [id]
   );
@@ -196240,7 +196254,8 @@ function registerSalesInvoiceRoutes(app, { guards }) {
         c,
         `SELECT id, branch_id, status, invoice_no, invoice_date, due_date, supply_type, party_id, customer_name,
                 customer_gstin, grand_total, amount_paid, amount_credited,
-                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at
+                (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.sales_invoices
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::uuid IS NULL OR branch_id = $3)
@@ -196446,7 +196461,8 @@ async function loadQuotation(c, id) {
   const qt = await queryOne(
     c,
     `SELECT q.*, (q.valid_until IS NOT NULL AND q.valid_until < erp.today()
-                  AND q.status IN ('issued', 'accepted')) AS is_expired
+                  AND q.status IN ('issued', 'accepted')) AS is_expired,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = q.party_id), 'walk_in') AS customer_type
      FROM erp.quotations q WHERE q.id = $1`,
     [id]
   );
@@ -196466,7 +196482,8 @@ function registerQuotationRoutes(app, { guards }) {
       (c) => query(
         c,
         `SELECT id, branch_id, status, quote_no, quote_date, valid_until, party_id, customer_name, grand_total,
-                invoice_id, created_at
+                invoice_id, created_at,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.quotations
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::text IS NULL OR quote_no ILIKE $3 OR customer_name ILIKE $3)

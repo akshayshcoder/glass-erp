@@ -81,7 +81,8 @@ async function loadQuotation(c: DbClient, id: string): Promise<Record<string, un
   const qt = await queryOne(
     c,
     `SELECT q.*, (q.valid_until IS NOT NULL AND q.valid_until < erp.today()
-                  AND q.status IN ('issued', 'accepted')) AS is_expired
+                  AND q.status IN ('issued', 'accepted')) AS is_expired,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = q.party_id), 'walk_in') AS customer_type
      FROM erp.quotations q WHERE q.id = $1`,
     [id],
   );
@@ -102,7 +103,8 @@ export function registerQuotationRoutes(app: FastifyInstance, { guards }: AppCon
       query(
         c,
         `SELECT id, branch_id, status, quote_no, quote_date, valid_until, party_id, customer_name, grand_total,
-                invoice_id, created_at
+                invoice_id, created_at,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.quotations
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::text IS NULL OR quote_no ILIKE $3 OR customer_name ILIKE $3)

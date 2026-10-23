@@ -6,7 +6,6 @@ import { api, errorMessage } from '../../api/client';
 import type { InvoiceSummary, Page } from '../../api/types';
 import { useCan } from '../../app/auth';
 import {
-  Badge,
   Button,
   Card,
   EmptyState,
@@ -21,6 +20,7 @@ import {
   Th,
 } from '../../components/ui';
 import { formatDate, isZero, rupees } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { useDebounced } from '../../lib/use-debounced';
 
 export function InvoicesPage() {
@@ -140,7 +140,7 @@ export function InvoicesPage() {
                   <Td className="font-medium text-slate-900">{i.invoiceNo ?? 'Draft'}</Td>
                   <Td>{formatDate(i.invoiceDate)}</Td>
                   <Td>
-                    {i.customerName} {i.supplyType === 'b2b' && <Badge tone="blue">B2B</Badge>}
+                    {docCustomerLabel(i.customerName, i.customerType)}
                   </Td>
                   <Td right>{rupees(i.grandTotal)}</Td>
                   <Td

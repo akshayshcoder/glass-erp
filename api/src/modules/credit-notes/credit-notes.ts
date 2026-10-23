@@ -93,7 +93,9 @@ const ListQuery = PageQuery.extend({
 async function loadCreditNote(c: DbClient, id: string): Promise<Record<string, unknown>> {
   const cn = await queryOne(
     c,
-    `SELECT n.*, i.invoice_no FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
+    `SELECT n.*, i.invoice_no,
+            coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
+     FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
      WHERE n.id = $1`,
     [id],
   );
@@ -202,7 +204,8 @@ export function registerCreditNoteRoutes(app: FastifyInstance, { guards }: AppCo
       query(
         c,
         `SELECT n.id, n.branch_id, n.status, n.note_no, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
-                n.customer_name, n.reason, n.restock, n.grand_total
+                n.customer_name, n.reason, n.restock, n.grand_total,
+                coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
          FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
          WHERE ($1::uuid IS NULL OR n.invoice_id = $1) AND ($2::uuid IS NULL OR n.party_id = $2)
            AND ($3::text IS NULL OR n.status = $3)

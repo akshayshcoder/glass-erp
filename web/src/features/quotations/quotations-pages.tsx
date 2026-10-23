@@ -31,6 +31,7 @@ import {
   Th,
 } from '../../components/ui';
 import { formatDate, rupees } from '../../lib/format';
+import { docCustomerLabel } from '../../lib/party-type';
 import { openPdf } from '../../lib/pdf';
 import { ReasonDialog, useDocumentActions } from '../documents/actions';
 import { LinesCard, PartyCard } from '../documents/document-view';
@@ -113,7 +114,7 @@ export function QuotationsPage() {
               >
                 <Td className="font-medium text-slate-900">{q.quoteNo ?? 'Draft'}</Td>
                 <Td>{formatDate(q.quoteDate)}</Td>
-                <Td>{q.customerName}</Td>
+                <Td>{docCustomerLabel(q.customerName, q.customerType)}</Td>
                 <Td>{formatDate(q.validUntil)}</Td>
                 <Td right>{rupees(q.grandTotal)}</Td>
                 <Td>
@@ -282,7 +283,7 @@ export function QuotationPage() {
       )}
       <PartyCard
         heading="Customer"
-        name={q.customerName}
+        name={docCustomerLabel(q.customerName, q.customerType)}
         lines={[q.customerGstin ? `GSTIN ${q.customerGstin}` : null, q.customerPhone]}
       />
       <LinesCard lines={q.lines} totals={q} interState={q.placeOfSupply !== q.sellerStateCode} />
