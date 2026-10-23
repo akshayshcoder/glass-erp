@@ -21,6 +21,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { formatDate, formatMoney, isNegative, rupees, todayIso } from '../../lib/format';
+import { partyLabel } from '../../lib/party-type';
 import { PartyForm } from './parties-page';
 
 const ENTRY_LABELS: Record<string, string> = {
@@ -116,20 +117,7 @@ export function PartyPage() {
         <ArrowLeft className="size-4" /> Customers & suppliers
       </Link>
       <PageHeader
-        title={
-          <span className="flex flex-wrap items-center gap-2">
-            <span>{p.name}</span>
-            <span
-              className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-semibold ${
-                p.gstin
-                  ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
-                  : 'bg-slate-100 text-slate-700 ring-1 ring-slate-400/20'
-              }`}
-            >
-              {p.gstin ? 'Registered B2B' : 'Walk-in / Cash'}
-            </span>
-          </span>
-        }
+        title={partyLabel(p)}
         subtitle={[
           p.kind,
           p.gstin ? `GSTIN ${p.gstin}` : 'Unregistered',

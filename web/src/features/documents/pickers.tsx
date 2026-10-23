@@ -4,6 +4,7 @@ import { type KeyboardEvent, type Ref, useEffect, useId, useState } from 'react'
 import { api } from '../../api/client';
 import type { Page, Party, Product } from '../../api/types';
 import { formatMoney, formatProductSpec } from '../../lib/format';
+import { partyLabel } from '../../lib/party-type';
 import { useDebounced } from '../../lib/use-debounced';
 
 /*
@@ -206,22 +207,12 @@ export function CustomerPicker(props: { onPick: (p: Party) => void; autoFocus?: 
       }
       getKey={(p) => p.id}
       render={(p) => {
-        const isRegistered = Boolean(p.gstin);
         const hasWallet = p.walletBalance && Number(p.walletBalance) > 0;
         return (
           <div className="flex items-center justify-between gap-2">
             <div>
               <p className="font-medium text-slate-900">
-                {p.name}
-                <span
-                  className={`ml-2 inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium ${
-                    isRegistered
-                      ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
-                      : 'bg-slate-100 text-slate-700 ring-1 ring-slate-400/20'
-                  }`}
-                >
-                  {isRegistered ? 'Registered B2B' : 'Walk-in / Cash'}
-                </span>
+                {partyLabel(p)}
               </p>
               <p className="text-xs text-slate-500">
                 {[p.gstin, p.phone].filter(Boolean).join(' · ')}

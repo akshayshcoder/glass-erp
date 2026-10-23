@@ -18,6 +18,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { formatMoney, todayIso } from '../../lib/format';
+import { customerTypeLabel, partyLabel } from '../../lib/party-type';
 import { TotalsRows } from '../documents/document-view';
 import {
   LineItems,
@@ -376,13 +377,15 @@ export function SelectedParty({
   return (
     <div className="flex items-start justify-between rounded-md bg-slate-50 px-4 py-3 ring-1 ring-slate-200">
       <div>
-        <p className="font-medium text-slate-900">{party.name}</p>
+        <p className="font-medium text-slate-900">{partyLabel(party)}</p>
         <p className="text-xs text-slate-500">
           {party.gstin ? `GSTIN ${party.gstin}` : 'Unregistered'} · {stateName(party.stateCode)}
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <Badge tone={party.gstin ? 'blue' : 'gray'}>{party.gstin ? 'B2B' : 'B2C'}</Badge>
+        <Badge tone={party.gstin ? 'blue' : 'gray'}>
+          {customerTypeLabel(party.customerType, party.gstin)}
+        </Badge>
         {onClear && (
           <button
             onClick={onClear}

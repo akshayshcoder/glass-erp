@@ -80,10 +80,12 @@ export interface Product {
 }
 
 export type PartyKind = 'customer' | 'supplier' | 'both';
+export type CustomerType = 'walk_in' | 'franchise' | 'b2b' | 'b2c';
 
 export interface Party {
   id: string;
   kind: PartyKind;
+  customerType?: CustomerType;
   name: string;
   contactPerson: string | null;
   phone: string | null;

@@ -34,9 +34,11 @@ import {
  */
 
 const Kind = z.enum(['customer', 'supplier', 'both']);
+const CustomerType = z.enum(['walk_in', 'franchise', 'b2b', 'b2c']);
 
 const PartyFields = {
   kind: Kind,
+  customerType: CustomerType.optional(),
   name: NonEmpty,
   contactPerson: z.string().trim().nullable().optional(),
   phone: Phone.nullable().optional(),
@@ -78,6 +80,7 @@ const UpdatePartyBody = z
 const ListPartiesQuery = PageQuery.extend({
   search: z.string().trim().optional(),
   kind: z.enum(['customer', 'supplier']).optional(),
+  customerType: CustomerType.optional(),
   status: z.enum(['active', 'inactive', 'all']).default('active'),
 });
 
@@ -90,6 +93,7 @@ const OpeningBalanceBody = z.object({
 
 const COLUMNS = {
   kind: 'kind',
+  customerType: 'customer_type',
   name: 'name',
   contactPerson: 'contact_person',
   phone: 'phone',
@@ -107,6 +111,7 @@ const COLUMNS = {
 interface PartyRow {
   id: string;
   kind: string;
+  customer_type: string;
   name: string;
   contact_person: string | null;
   phone: string | null;
@@ -130,6 +135,7 @@ interface PartyRow {
 const toParty = (r: PartyRow) => ({
   id: r.id,
   kind: r.kind,
+  customerType: r.customer_type,
   name: r.name,
   contactPerson: r.contact_person,
   phone: r.phone,
@@ -173,12 +179,14 @@ export function registerPartyRoutes(app: FastifyInstance, { guards }: AppContext
          WHERE ($1::text IS NULL OR p.name ILIKE $1 OR p.phone ILIKE $1 OR p.gstin ILIKE $1)
            AND ($2::text IS NULL OR p.kind = $2 OR p.kind = 'both')
            AND ($3 = 'all' OR p.is_active = ($3 = 'active'))
+           AND ($4::text IS NULL OR p.customer_type = $4)
          ORDER BY lower(p.name), p.id
-         LIMIT $4 OFFSET $5`,
+         LIMIT $5 OFFSET $6`,
         [
           q.search ? containsPattern(q.search) : null,
           q.kind ?? null,
           q.status,
+          q.customerType ?? null,
           page.limit + 1,
           page.offset,
         ],
@@ -208,8 +216,8 @@ export function registerPartyRoutes(app: FastifyInstance, { guards }: AppContext
             c,
             `INSERT INTO erp.parties
              (kind, name, contact_person, phone, email, gstin, state_code, billing_address, shipping_address,
-              pincode, credit_limit, credit_days)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+              pincode, credit_limit, credit_days, customer_type)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
             [
               p.kind,
               p.name,
@@ -223,6 +231,7 @@ export function registerPartyRoutes(app: FastifyInstance, { guards }: AppContext
               p.pincode ?? null,
               p.creditLimit ?? '0',
               p.creditDays ?? 0,
+              p.customerType ?? (p.gstin ? 'b2b' : 'b2c'),
             ],
           );
         } catch (err) {

@@ -125,6 +125,40 @@ describe('parties', () => {
     customerId = res.body.id;
   });
 
+  it('classifies customers: derived default, explicit type, filter, and bad type refused', async () => {
+    const detail = await shop.get(`/v1/parties/${customerId}`);
+    expect(detail.body.customerType).toBe('b2b'); // has a GSTIN, no type given
+
+    const walkIn = await shop.post('/v1/parties', {
+      kind: 'customer',
+      name: 'Counter Ramesh',
+      customerType: 'walk_in',
+    });
+    expect(walkIn.status).toBe(201);
+    expect(walkIn.body.customerType).toBe('walk_in');
+    const plain = await shop.post('/v1/parties', { kind: 'customer', name: 'Home Buyer' });
+    expect(plain.body.customerType).toBe('b2c');
+
+    const franchise = await shop.post('/v1/parties', {
+      kind: 'customer',
+      name: 'Pune Franchise',
+      customerType: 'franchise',
+    });
+    expect(franchise.status).toBe(201);
+
+    const list = await shop.get('/v1/parties?customerType=walk_in');
+    expect(list.body.items.map((p: { name: string }) => p.name)).toEqual(['Counter Ramesh']);
+
+    const patched = await shop.patch(`/v1/parties/${walkIn.body.id}`, {
+      version: walkIn.body.version,
+      customerType: 'b2b',
+    });
+    expect(patched.body.customerType).toBe('b2b');
+
+    const bad = await shop.post('/v1/parties', { kind: 'customer', name: 'Z', customerType: 'vip' });
+    expect(bad.status).toBe(400);
+  });
+
   it('rejects a GSTIN from another state and a duplicate GSTIN', async () => {
     const mismatch = await shop.post('/v1/parties', {
       kind: 'customer',

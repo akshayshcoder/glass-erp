@@ -3,7 +3,7 @@ import { Plus, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ApiError, api, errorMessage } from '../../api/client';
-import type { Page, Party, PartyKind } from '../../api/types';
+import type { CustomerType, Page, Party, PartyKind } from '../../api/types';
 import { useCan } from '../../app/auth';
 import { useReference } from '../../app/shop-data';
 import {
@@ -24,6 +24,7 @@ import {
   useToast,
 } from '../../components/ui';
 import { isNegative, isZero, rupees } from '../../lib/format';
+import { CUSTOMER_TYPES, customerTypeLabel, partyLabel } from '../../lib/party-type';
 import { useDebounced } from '../../lib/use-debounced';
 
 export function PartiesPage() {
@@ -31,7 +32,7 @@ export function PartiesPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [kind, setKind] = useState('');
-  const [regFilter, setRegFilter] = useState<'all' | 'registered' | 'walkin'>('all');
+  const [typeFilter, setTypeFilter] = useState('');
   const [creating, setCreating] = useState(false);
   const q = useDebounced(search.trim(), 250);
 
@@ -39,6 +40,7 @@ export function PartiesPage() {
     pageSize: '100',
     ...(q && { search: q }),
     ...(kind && { kind }),
+    ...(typeFilter && { customerType: typeFilter }),
   });
   const { data, isLoading, error } = useQuery({
     queryKey: ['parties', params.toString()],
@@ -46,11 +48,7 @@ export function PartiesPage() {
     placeholderData: keepPreviousData,
   });
 
-  const filteredItems = (data?.items ?? []).filter((p) => {
-    if (regFilter === 'registered') return Boolean(p.gstin);
-    if (regFilter === 'walkin') return !p.gstin;
-    return true;
-  });
+  const filteredItems = data?.items ?? [];
 
   return (
     <>
@@ -93,13 +91,16 @@ export function PartiesPage() {
           </Select>
           <Select
             aria-label="Customer Type"
-            value={regFilter}
-            onChange={(e) => setRegFilter(e.target.value as 'all' | 'registered' | 'walkin')}
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
             className="w-44"
           >
-            <option value="all">All Registrations</option>
-            <option value="registered">Registered B2B</option>
-            <option value="walkin">Walk-in / Cash</option>
+            <option value="">All customer types</option>
+            {CUSTOMER_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
           </Select>
         </div>
         {error && (
@@ -115,7 +116,7 @@ export function PartiesPage() {
           <Table
             head={
               <>
-                <Th>Name &amp; Type</Th>
+                <Th>Name</Th>
                 <Th>Role</Th>
                 <Th>Phone</Th>
                 <Th>GSTIN</Th>
@@ -130,20 +131,7 @@ export function PartiesPage() {
                 className="cursor-pointer hover:bg-slate-50"
                 onClick={() => navigate(`/parties/${p.id}`)}
               >
-                <Td className="font-medium text-slate-900">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span>{p.name}</span>
-                    <span
-                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium ${
-                        p.gstin
-                          ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/20'
-                          : 'bg-slate-100 text-slate-600 ring-1 ring-slate-400/20'
-                      }`}
-                    >
-                      {p.gstin ? 'Registered B2B' : 'Walk-in / Cash'}
-                    </span>
-                  </div>
-                </Td>
+                <Td className="font-medium text-slate-900">{partyLabel(p)}</Td>
                 <Td>
                   <span className="capitalize">{p.kind}</span>
                 </Td>
@@ -186,6 +174,7 @@ export function PartyForm({ party, onClose }: { party: Party | null; onClose: ()
   const { data: reference } = useReference();
   const [form, setForm] = useState({
     kind: (party?.kind ?? 'customer') as PartyKind,
+    customerType: (party?.customerType ?? 'b2c') as CustomerType,
     name: party?.name ?? '',
     phone: party?.phone ?? '',
     email: party?.email ?? '',
@@ -209,6 +198,7 @@ export function PartyForm({ party, onClose }: { party: Party | null; onClose: ()
     setErrors({});
     const body = {
       kind: form.kind,
+      customerType: form.customerType,
       name: form.name.trim(),
       phone: orNull(form.phone),
       email: orNull(form.email),
@@ -273,6 +263,15 @@ export function PartyForm({ party, onClose }: { party: Party | null; onClose: ()
           <option value="supplier">Supplier</option>
           <option value="both">Both</option>
         </Select>
+        {form.kind !== 'supplier' && (
+          <Select label="Customer type" value={form.customerType} onChange={set('customerType')}>
+            {CUSTOMER_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </Select>
+        )}
         <Input
           label="Phone"
           inputMode="tel"
