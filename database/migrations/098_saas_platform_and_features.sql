@@ -86,8 +86,18 @@ SELECT
 FROM erp.tenants t;
 
 -- Grants for application roles
-GRANT SELECT, INSERT, UPDATE ON erp.platform_invoices TO erp_api;
-GRANT SELECT, INSERT, UPDATE ON erp.platform_payments TO erp_api;
-GRANT SELECT ON erp.v_tenant_subscription_summary TO erp_api;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'erp_app') THEN
+    GRANT SELECT, INSERT, UPDATE ON erp.platform_invoices TO erp_app;
+    GRANT SELECT, INSERT, UPDATE ON erp.platform_payments TO erp_app;
+    GRANT SELECT ON erp.v_tenant_subscription_summary TO erp_app;
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'erp_api') THEN
+    GRANT SELECT, INSERT, UPDATE ON erp.platform_invoices TO erp_api;
+    GRANT SELECT, INSERT, UPDATE ON erp.platform_payments TO erp_api;
+    GRANT SELECT ON erp.v_tenant_subscription_summary TO erp_api;
+  END IF;
+END $$;
 
 RESET ROLE;

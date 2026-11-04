@@ -1,4 +1,4 @@
-import { ChevronRight, Store } from 'lucide-react';
+import { ChevronRight, Shield, Store } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ApiError, api, errorMessage } from '../../api/client';
@@ -29,6 +29,22 @@ export function ShopsPage() {
           Sign out
         </Button>
       </div>
+
+      {me?.user.isPlatformAdmin && (
+        <div className="mb-6">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (shops.length > 0 && !me?.memberships) selectShop(shops[0]!.tenantId);
+              navigate('/super-admin');
+            }}
+            className="w-full justify-center bg-purple-50 text-purple-700 hover:bg-purple-100 ring-1 ring-purple-600/20"
+            icon={<Shield className="size-4 text-purple-600" />}
+          >
+            Open Super Admin Console (SaaS Control)
+          </Button>
+        </div>
+      )}
 
       {shops.length > 0 && (
         <Card className="mb-6 divide-y divide-slate-100">
