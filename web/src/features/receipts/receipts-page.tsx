@@ -20,6 +20,7 @@ import {
   Table,
   Td,
   Th,
+  FyPicker,
   useToast,
 } from '../../components/ui';
 import { formatDate, rupees, todayIso } from '../../lib/format';
@@ -36,9 +37,18 @@ export function ReceiptsPage() {
   const canSell = useCan('sell');
   const [receiving, setReceiving] = useState(false);
   const [viewing, setViewing] = useState<string | null>(null);
+  const [financialYear, setFinancialYear] = useState('');
+  const [status, setStatus] = useState('');
+
+  const params = new URLSearchParams({
+    pageSize: '100',
+    ...(financialYear && { financialYear }),
+    ...(status && { status }),
+  });
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['receipts'],
-    queryFn: () => api<Page<Receipt>>('/v1/receipts?pageSize=100'),
+    queryKey: ['receipts', params.toString()],
+    queryFn: () => api<Page<Receipt>>(`/v1/receipts?${params}`),
   });
 
   return (
@@ -55,6 +65,24 @@ export function ReceiptsPage() {
         }
       />
       <Card>
+        <div className="flex flex-wrap gap-2.5 sm:gap-3 border-b border-slate-200 p-3 sm:p-4">
+          <FyPicker
+            value={financialYear}
+            onChange={(fy) => setFinancialYear(fy)}
+            autoFillDates={false}
+          />
+          <Select
+            aria-label="Status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full sm:w-36"
+          >
+            <option value="">All status</option>
+            <option value="draft">Drafts</option>
+            <option value="posted">Posted</option>
+            <option value="cancelled">Cancelled</option>
+          </Select>
+        </div>
         {error && (
           <div className="p-4">
             <ErrorBanner message={errorMessage(error)} />

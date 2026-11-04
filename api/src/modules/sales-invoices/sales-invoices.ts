@@ -87,6 +87,7 @@ const ListQuery = PageQuery.extend({
   branchId: Uuid.optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
   /** Invoice number or customer name. */
   search: z.string().trim().optional(),
   /** Only posted invoices with money still to collect (for the receive-payment screen). */
@@ -144,7 +145,7 @@ export function registerSalesInvoiceRoutes(app: FastifyInstance, { guards }: App
     const rows = await request.tx((c) =>
       query(
         c,
-        `SELECT id, branch_id, status, invoice_no, invoice_date, due_date, supply_type, party_id, customer_name,
+        `SELECT id, branch_id, status, invoice_no, financial_year, invoice_date, due_date, supply_type, party_id, customer_name,
                 customer_gstin, grand_total, amount_paid, amount_credited,
                 (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
@@ -154,6 +155,7 @@ export function registerSalesInvoiceRoutes(app: FastifyInstance, { guards }: App
            AND ($4::date IS NULL OR invoice_date >= $4) AND ($5::date IS NULL OR invoice_date <= $5)
            AND ($6::text IS NULL OR invoice_no ILIKE $6 OR customer_name ILIKE $6)
            AND (NOT $9 OR (status = 'posted' AND grand_total - amount_credited - amount_paid > 0))
+           AND ($10::text IS NULL OR financial_year = $10)
          ORDER BY invoice_date DESC, created_at DESC
          LIMIT $7 OFFSET $8`,
         [
@@ -166,6 +168,7 @@ export function registerSalesInvoiceRoutes(app: FastifyInstance, { guards }: App
           page.limit + 1,
           page.offset,
           q.unpaid,
+          q.financialYear ?? null,
         ],
       ),
     );

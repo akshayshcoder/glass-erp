@@ -4,6 +4,7 @@ import {
   BarChart3,
   Boxes,
   Building2,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -17,6 +18,7 @@ import {
   Menu,
   Package,
   PackagePlus,
+  Shield,
   Store,
   Undo2,
   UserCog,
@@ -26,6 +28,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router';
 import { Spinner } from '../components/ui';
+import { currentFiscalYear } from '../lib/fiscal-year';
 import { can, useAuth } from './auth';
 import { BranchProvider, useCurrentBranch } from './shop-data';
 
@@ -110,7 +113,7 @@ function AppLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [tabletCollapsed, setTabletCollapsed] = useState(false);
   const location = useLocation();
-  const { role } = useAuth();
+  const { role, me } = useAuth();
 
   // Close mobile drawer on route change
   useEffect(() => {
@@ -171,6 +174,32 @@ function AppLayout() {
           </div>
         );
       })}
+      {me?.user.isPlatformAdmin && (
+        <div className="mb-2 pt-2 border-t border-slate-800">
+          {!isCompact && (
+            <p className="px-3 pt-1 pb-1 text-[11px] font-semibold tracking-wider text-purple-400 uppercase">
+              Platform
+            </p>
+          )}
+          <NavLink
+            to="/super-admin"
+            title={isCompact ? 'Super Admin' : undefined}
+            onClick={() => setDrawerOpen(false)}
+            className={({ isActive }) =>
+              `group relative flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors ${
+                isCompact ? 'justify-center px-2' : 'px-3'
+              } ${
+                isActive
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-purple-300 hover:bg-slate-800 hover:text-white'
+              }`
+            }
+          >
+            <Shield className="size-4.5 shrink-0 text-purple-400" aria-hidden />
+            {!isCompact && <span className="truncate">Super Admin</span>}
+          </NavLink>
+        </div>
+      )}
     </nav>
   );
 
@@ -308,8 +337,27 @@ function TopBar({ onMenu }: { onMenu: () => void }) {
         branch && <span className="hidden sm:inline text-xs sm:text-sm text-slate-500 truncate max-w-[120px]">· {branch.name}</span>
       )}
 
+      {/* Financial Year Badge */}
+      <span
+        className="hidden md:inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200"
+        title="Active Financial Year"
+      >
+        <Calendar className="size-3 text-slate-400" />
+        FY {currentFiscalYear()}
+      </span>
+
       {/* User profile & actions */}
       <div className="ml-auto flex items-center gap-1.5 sm:gap-3">
+        {me?.user.isPlatformAdmin && (
+          <Link
+            to="/super-admin"
+            className="inline-flex items-center gap-1 rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-600/20 hover:bg-purple-100"
+            title="Open Super Admin Portal"
+          >
+            <Shield className="size-3.5" />
+            <span className="hidden sm:inline">Super Admin</span>
+          </Link>
+        )}
         <span className="hidden md:inline text-xs sm:text-sm font-medium text-slate-700 truncate max-w-[150px]">
           {me?.user.fullName}
         </span>

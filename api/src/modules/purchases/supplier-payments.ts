@@ -44,6 +44,7 @@ const ListQuery = PageQuery.extend({
   status: z.enum(['draft', 'posted', 'cancelled']).optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
 });
 
 async function loadSupplierPayment(c: DbClient, id: string): Promise<Record<string, unknown>> {
@@ -73,6 +74,7 @@ export function registerSupplierPaymentRoutes(app: FastifyInstance, { guards }: 
          FROM erp.supplier_payments s JOIN erp.parties p ON p.id = s.supplier_id
          WHERE ($1::uuid IS NULL OR s.supplier_id = $1) AND ($2::text IS NULL OR s.status = $2)
            AND ($3::date IS NULL OR s.payment_date >= $3) AND ($4::date IS NULL OR s.payment_date <= $4)
+           AND ($7::text IS NULL OR s.financial_year = $7)
          ORDER BY s.payment_date DESC, s.created_at DESC
          LIMIT $5 OFFSET $6`,
           [
@@ -82,6 +84,7 @@ export function registerSupplierPaymentRoutes(app: FastifyInstance, { guards }: 
             q.to ?? null,
             page.limit + 1,
             page.offset,
+            q.financialYear ?? null,
           ],
         ),
       );

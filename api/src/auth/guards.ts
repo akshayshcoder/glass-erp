@@ -17,7 +17,7 @@ import type { TokenService } from './tokens.js';
  * not only when their access token expires.
  */
 const SESSION_SQL = `
-  SELECT m.role, m.branch_ids
+  SELECT m.role, m.branch_ids, u.is_platform_admin
   FROM erp.users u
   JOIN erp.user_sessions s
     ON s.user_id = u.id AND s.family_id = $2 AND s.revoked_at IS NULL AND s.expires_at > now()
@@ -33,6 +33,8 @@ export interface Guards {
   user: Guard;
   /** Signed in, a shop selected, and the user's role in it is one of `roles`. */
   tenant(roles: readonly Role[]): Guard;
+  /** Platform / Super Admin access. */
+  platformAdmin: Guard;
 }
 
 export function createGuards(pool: pg.Pool, tokens: TokenService): Guards {
@@ -56,7 +58,7 @@ export function createGuards(pool: pg.Pool, tokens: TokenService): Guards {
       pool,
       { requestId: request.id, userId: claims.userId, clientIp: request.ip },
       (client) =>
-        queryOne<{ role: Role | null; branch_ids: string[] | null }>(client, SESSION_SQL, [
+        queryOne<{ role: Role | null; branch_ids: string[] | null; is_platform_admin: boolean }>(client, SESSION_SQL, [
           claims.userId,
           claims.sessionId,
           tenantId,
@@ -65,7 +67,7 @@ export function createGuards(pool: pg.Pool, tokens: TokenService): Guards {
     if (!row) {
       throw new AppError(401, 'SESSION_REVOKED', 'Your session has ended. Please sign in again.');
     }
-    if (tenantId && !row.role) {
+    if (tenantId && !row.role && !row.is_platform_admin) {
       throw new AppError(403, 'NOT_A_MEMBER', 'You are not a member of this shop');
     }
     request.auth = {
@@ -74,6 +76,7 @@ export function createGuards(pool: pg.Pool, tokens: TokenService): Guards {
       tenantId: row.role ? tenantId : null,
       role: row.role,
       branchIds: row.branch_ids,
+      isPlatformAdmin: row.is_platform_admin,
     };
   }
 
@@ -85,6 +88,12 @@ export function createGuards(pool: pg.Pool, tokens: TokenService): Guards {
         const { role } = tenantOf(request);
         if (!roles.includes(role)) throw forbidden();
       };
+    },
+    platformAdmin: async (request) => {
+      await authenticate(request);
+      if (!request.auth?.isPlatformAdmin) {
+        throw forbidden('Platform admin access required');
+      }
     },
   };
 }

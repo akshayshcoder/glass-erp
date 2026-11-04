@@ -12,6 +12,7 @@ export interface AuthContext {
   role: Role | null;
   /** Branches this member may work in; null = all branches. */
   branchIds: string[] | null;
+  isPlatformAdmin?: boolean;
 }
 
 export interface TenantAuthContext extends AuthContext {

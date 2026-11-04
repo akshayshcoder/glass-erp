@@ -49,6 +49,7 @@ const ListQuery = PageQuery.extend({
   status: z.enum(['draft', 'posted', 'cancelled']).optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
 });
 
 /** Inserts (and optionally posts) a receipt inside the caller's transaction. */
@@ -140,6 +141,7 @@ export function registerReceiptRoutes(app: FastifyInstance, { guards }: AppConte
                 coalesce(p.customer_type, 'walk_in') AS customer_type FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
          WHERE ($1::uuid IS NULL OR r.party_id = $1) AND ($2::text IS NULL OR r.status = $2)
            AND ($3::date IS NULL OR r.receipt_date >= $3) AND ($4::date IS NULL OR r.receipt_date <= $4)
+           AND ($7::text IS NULL OR r.financial_year = $7)
          ORDER BY r.receipt_date DESC, r.created_at DESC
          LIMIT $5 OFFSET $6`,
         [
@@ -149,6 +151,7 @@ export function registerReceiptRoutes(app: FastifyInstance, { guards }: AppConte
           q.to ?? null,
           page.limit + 1,
           page.offset,
+          q.financialYear ?? null,
         ],
       ),
     );

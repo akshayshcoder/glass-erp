@@ -13,7 +13,13 @@ export interface Page<T> {
 }
 
 export interface Me {
-  user: { id: string; fullName: string; email: string | null; phone: string | null };
+  user: {
+    id: string;
+    fullName: string;
+    email: string | null;
+    phone: string | null;
+    isPlatformAdmin?: boolean;
+  };
   memberships: { tenantId: string; tenantName: string; role: Role }[];
 }
 
@@ -29,7 +35,70 @@ export interface Tenant {
   pan: string | null;
   plan: string;
   status: string;
+  features?: Record<string, boolean>;
+  subscriptionStatus?: 'trial' | 'active' | 'grace_period' | 'suspended' | 'cancelled';
+  subscriptionPeriod?: 'monthly' | 'quarterly' | 'annual' | 'lifetime';
+  subscriptionAmount?: string;
+  subscriptionValidUntil?: string | null;
+  gracePeriodDays?: number;
+  maxBranches?: number;
+  maxUsers?: number;
   version: number;
+}
+
+export interface SuperAdminTenant {
+  tenantId: string;
+  tenantName: string;
+  legalName: string | null;
+  tenantStatus: 'active' | 'suspended' | 'closed';
+  plan: string;
+  subscriptionStatus: 'trial' | 'active' | 'grace_period' | 'suspended' | 'cancelled';
+  subscriptionPeriod: 'monthly' | 'quarterly' | 'annual' | 'lifetime';
+  subscriptionAmount: string;
+  subscriptionValidUntil: string | null;
+  gracePeriodDays: number;
+  maxBranches: number;
+  maxUsers: number;
+  features: Record<string, boolean>;
+  adminNotes: string | null;
+  createdAt: string;
+  totalInvoiced: string;
+  totalPaid: string;
+  outstandingDue: string;
+  computedValidityState: 'active' | 'grace_period' | 'expired';
+  owner?: {
+    id: string;
+    fullName: string;
+    phone: string | null;
+    email: string | null;
+  } | null;
+  activeUsersCount?: number;
+  activeBranchesCount?: number;
+}
+
+export interface PlatformPayment {
+  id: string;
+  tenantId: string;
+  invoiceId: string | null;
+  amount: string;
+  paymentDate: string;
+  mode: 'cash' | 'upi' | 'bank_transfer' | 'cheque' | 'card';
+  referenceNo: string | null;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface PlatformInvoice {
+  id: string;
+  tenantId: string;
+  invoiceNo: string;
+  billingPeriodStart: string;
+  billingPeriodEnd: string;
+  amount: string;
+  status: 'unpaid' | 'paid' | 'void';
+  dueDate: string;
+  paidAt: string | null;
+  notes: string | null;
 }
 
 export interface Branch {
@@ -210,6 +279,7 @@ export interface InvoiceSummary {
   branchId: string;
   status: DocStatus;
   invoiceNo: string | null;
+  financialYear?: string | null;
   invoiceDate: string;
   supplyType: 'b2b' | 'b2c';
   partyId: string | null;
@@ -322,6 +392,7 @@ export interface PurchaseBillSummary {
   id: string;
   status: DocStatus;
   docNo: string | null;
+  financialYear?: string | null;
   entryDate: string;
   supplierId: string;
   supplierName: string;
@@ -337,6 +408,7 @@ export interface CreditNote extends PricedDocument {
   branchId: string;
   status: DocStatus;
   noteNo: string | null;
+  financialYear?: string | null;
   noteDate: string;
   invoiceId: string;
   invoiceNo: string | null;
@@ -357,6 +429,7 @@ export interface Receipt {
   branchId: string;
   status: DocStatus;
   receiptNo: string | null;
+  financialYear?: string | null;
   receiptDate: string;
   partyId: string | null;
   partyName?: string | null;
@@ -376,6 +449,7 @@ export interface SupplierPayment {
   branchId: string;
   status: DocStatus;
   paymentNo: string | null;
+  financialYear?: string | null;
   paymentDate: string;
   supplierId: string;
   supplierName?: string;

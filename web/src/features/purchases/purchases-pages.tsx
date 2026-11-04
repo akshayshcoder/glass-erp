@@ -26,6 +26,7 @@ import {
   Table,
   Td,
   Th,
+  FyPicker,
 } from '../../components/ui';
 import { formatDate, isZero, rupees } from '../../lib/format';
 import { useDebounced } from '../../lib/use-debounced';
@@ -38,11 +39,13 @@ export function PurchaseBillsPage() {
   const canPurchase = useCan('purchase');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [financialYear, setFinancialYear] = useState('');
   const q = useDebounced(search.trim(), 250);
   const filters = new URLSearchParams({
     pageSize: '50',
     ...(q && { search: q }),
     ...(status && { status }),
+    ...(financialYear && { financialYear }),
   });
 
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -89,6 +92,11 @@ export function PurchaseBillsPage() {
               className="block w-full rounded-md border-0 py-2 pr-3 pl-9 text-sm ring-1 ring-slate-300 ring-inset focus:ring-2 focus:ring-brand-600"
             />
           </div>
+          <FyPicker
+            value={financialYear}
+            onChange={(fy) => setFinancialYear(fy)}
+            autoFillDates={false}
+          />
           <Select
             aria-label="Status"
             value={status}

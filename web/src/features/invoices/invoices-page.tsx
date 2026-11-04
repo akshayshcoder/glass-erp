@@ -18,6 +18,7 @@ import {
   Table,
   Td,
   Th,
+  FyPicker,
 } from '../../components/ui';
 import { formatDate, isZero, rupees } from '../../lib/format';
 import { docCustomerLabel } from '../../lib/party-type';
@@ -28,6 +29,7 @@ export function InvoicesPage() {
   const canSell = useCan('sell');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [financialYear, setFinancialYear] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const q = useDebounced(search.trim(), 250);
@@ -36,6 +38,7 @@ export function InvoicesPage() {
     pageSize: '50',
     ...(q && { search: q }),
     ...(status && { status }),
+    ...(financialYear && { financialYear }),
     ...(from && { from }),
     ...(to && { to }),
   });
@@ -93,6 +96,16 @@ export function InvoicesPage() {
             <option value="posted">Posted</option>
             <option value="cancelled">Cancelled</option>
           </Select>
+          <FyPicker
+            value={financialYear}
+            onChange={(fy, range) => {
+              setFinancialYear(fy);
+              if (range) {
+                setFrom(range.from);
+                setTo(range.to);
+              }
+            }}
+          />
           <Input
             type="date"
             aria-label="From date"

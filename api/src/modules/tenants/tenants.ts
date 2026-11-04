@@ -70,6 +70,15 @@ interface TenantRow {
   pan: string | null;
   plan: string;
   status: string;
+  features?: Record<string, boolean>;
+  subscription_status?: string;
+  subscription_period?: string;
+  subscription_amount?: string;
+  subscription_valid_until?: string | null;
+  grace_period_days?: number;
+  max_branches?: number;
+  max_users?: number;
+  admin_notes?: string | null;
   version: number;
   created_at: Date;
 }
@@ -81,6 +90,22 @@ const toTenant = (r: TenantRow) => ({
   pan: r.pan,
   plan: r.plan,
   status: r.status,
+  features: r.features ?? {
+    billing: true,
+    inventory: true,
+    wallet_fifo: true,
+    multi_branch: false,
+    credit_limits: true,
+    reports: true,
+    purchases: true,
+  },
+  subscriptionStatus: r.subscription_status ?? 'active',
+  subscriptionPeriod: r.subscription_period ?? 'annual',
+  subscriptionAmount: r.subscription_amount ?? '0.00',
+  subscriptionValidUntil: r.subscription_valid_until ?? null,
+  gracePeriodDays: r.grace_period_days ?? 7,
+  maxBranches: r.max_branches ?? 1,
+  maxUsers: r.max_users ?? 5,
   version: r.version,
   createdAt: r.created_at,
 });

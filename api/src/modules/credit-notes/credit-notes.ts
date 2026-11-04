@@ -88,6 +88,7 @@ const ListQuery = PageQuery.extend({
   invoiceId: Uuid.optional(),
   partyId: Uuid.optional(),
   status: z.enum(['draft', 'posted', 'cancelled']).optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
 });
 
 async function loadCreditNote(c: DbClient, id: string): Promise<Record<string, unknown>> {
@@ -203,15 +204,23 @@ export function registerCreditNoteRoutes(app: FastifyInstance, { guards }: AppCo
     const rows = await request.tx((c) =>
       query(
         c,
-        `SELECT n.id, n.branch_id, n.status, n.note_no, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
+        `SELECT n.id, n.branch_id, n.status, n.note_no, n.financial_year, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
                 n.customer_name, n.reason, n.restock, n.grand_total,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
          FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
          WHERE ($1::uuid IS NULL OR n.invoice_id = $1) AND ($2::uuid IS NULL OR n.party_id = $2)
            AND ($3::text IS NULL OR n.status = $3)
+           AND ($6::text IS NULL OR n.financial_year = $6)
          ORDER BY n.note_date DESC, n.created_at DESC
          LIMIT $4 OFFSET $5`,
-        [q.invoiceId ?? null, q.partyId ?? null, q.status ?? null, page.limit + 1, page.offset],
+        [
+          q.invoiceId ?? null,
+          q.partyId ?? null,
+          q.status ?? null,
+          page.limit + 1,
+          page.offset,
+          q.financialYear ?? null,
+        ],
       ),
     );
     const result = toPage(rows, page);

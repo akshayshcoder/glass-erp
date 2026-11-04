@@ -29,6 +29,7 @@ export interface UserProfile {
   fullName: string;
   email: string | null;
   phone: string | null;
+  isPlatformAdmin: boolean;
 }
 
 const invalidCredentials = () =>
@@ -49,7 +50,7 @@ export class AuthService {
           c,
           `INSERT INTO erp.users (full_name, email, phone, password_hash)
            VALUES ($1, $2, $3, $4)
-           RETURNING id, full_name, email, phone`,
+           RETURNING id, full_name, email, phone, is_platform_admin`,
           [input.fullName, input.email ?? null, input.phone ?? null, passwordHash],
         );
         return toProfile(row!);
@@ -189,7 +190,7 @@ export class AuthService {
     return withTransaction(this.pool, ctx, async (c) => {
       const user = await queryOne<UserRow>(
         c,
-        'SELECT id, full_name, email, phone FROM erp.users WHERE id = $1',
+        'SELECT id, full_name, email, phone, is_platform_admin FROM erp.users WHERE id = $1',
         [ctx.userId],
       );
       const memberships = await query<{ tenant_id: string; name: string; role: string }>(
@@ -255,10 +256,17 @@ interface UserRow {
   full_name: string;
   email: string | null;
   phone: string | null;
+  is_platform_admin?: boolean;
 }
 
 function toProfile(row: UserRow): UserProfile {
-  return { id: row.id, fullName: row.full_name, email: row.email, phone: row.phone };
+  return {
+    id: row.id,
+    fullName: row.full_name,
+    email: row.email,
+    phone: row.phone,
+    isPlatformAdmin: Boolean(row.is_platform_admin),
+  };
 }
 
 async function logEventIn(c: DbClient, type: string, userId: string | null, details: object) {

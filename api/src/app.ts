@@ -26,6 +26,7 @@ import { registerReferenceRoutes } from './modules/reference/reference.js';
 import { registerReportRoutes } from './modules/reports/reports.js';
 import { registerSalesInvoiceRoutes } from './modules/sales-invoices/sales-invoices.js';
 import { registerStockRoutes } from './modules/stock/stock.js';
+import { registerSuperAdminRoutes } from './modules/super-admin/super-admin.js';
 import { registerTenantRoutes } from './modules/tenants/tenants.js';
 
 export interface BuildAppOptions {
@@ -105,6 +106,7 @@ export async function buildApp({ config, pool }: BuildAppOptions): Promise<Fasti
     async (v1) => {
       registerAuthRoutes(v1, ctx);
       registerReferenceRoutes(v1, ctx);
+      registerSuperAdminRoutes(v1, ctx);
       registerTenantRoutes(v1, ctx);
       registerMemberRoutes(v1, ctx);
       registerBranchRoutes(v1, ctx);

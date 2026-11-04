@@ -53,6 +53,7 @@ const ListQuery = PageQuery.extend({
   status: z.enum(['draft', 'issued', 'accepted', 'rejected', 'converted', 'cancelled']).optional(),
   partyId: Uuid.optional(),
   search: z.string().trim().optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
 });
 
 async function buildQuotation(c: DbClient, input: z.infer<typeof QuoteFields>) {
@@ -102,12 +103,13 @@ export function registerQuotationRoutes(app: FastifyInstance, { guards }: AppCon
     const rows = await request.tx((c) =>
       query(
         c,
-        `SELECT id, branch_id, status, quote_no, quote_date, valid_until, party_id, customer_name, grand_total,
+        `SELECT id, branch_id, status, quote_no, financial_year, quote_date, valid_until, party_id, customer_name, grand_total,
                 invoice_id, created_at,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.quotations
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::text IS NULL OR quote_no ILIKE $3 OR customer_name ILIKE $3)
+           AND ($6::text IS NULL OR financial_year = $6)
          ORDER BY quote_date DESC, created_at DESC
          LIMIT $4 OFFSET $5`,
         [
@@ -116,6 +118,7 @@ export function registerQuotationRoutes(app: FastifyInstance, { guards }: AppCon
           q.search ? containsPattern(q.search) : null,
           page.limit + 1,
           page.offset,
+          q.financialYear ?? null,
         ],
       ),
     );

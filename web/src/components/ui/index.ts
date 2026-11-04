@@ -13,4 +13,5 @@ export {
   Th,
 } from './layout';
 export { Modal } from './modal';
+export { FyPicker } from './fy-picker';
 export { ToastProvider, useToast } from './toast';

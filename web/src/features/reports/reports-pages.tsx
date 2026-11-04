@@ -15,6 +15,7 @@ import {
   Table,
   Td,
   Th,
+  FyPicker,
 } from '../../components/ui';
 import { downloadFile } from '../../lib/download';
 import { formatMoney, formatQty, todayIso } from '../../lib/format';
@@ -276,22 +277,30 @@ function DateRange({
   onChange: (from: string, to: string) => void;
 }) {
   return (
-    <>
+    <div className="flex flex-wrap items-center gap-2">
+      <FyPicker
+        value=""
+        onChange={(_fy, range) => {
+          if (range) onChange(range.from, range.to);
+        }}
+        includeAll={false}
+        className="w-40 text-xs"
+      />
       <Input
         type="date"
         aria-label="From"
         value={from}
         onChange={(e) => onChange(e.target.value, to)}
-        className="w-40"
+        className="w-36"
       />
       <Input
         type="date"
         aria-label="To"
         value={to}
         onChange={(e) => onChange(from, e.target.value)}
-        className="w-40"
+        className="w-36"
       />
-    </>
+    </div>
   );
 }
 

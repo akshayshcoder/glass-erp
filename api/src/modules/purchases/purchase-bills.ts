@@ -65,6 +65,7 @@ const ListQuery = PageQuery.extend({
   supplierId: Uuid.optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
   search: z.string().trim().optional(),
   /** Only posted bills with money still to pay (for the supplier-payment screen). */
   unpaid: z
@@ -160,13 +161,14 @@ export function registerPurchaseBillRoutes(app: FastifyInstance, { guards }: App
     const rows = await request.tx((c) =>
       query(
         c,
-        `SELECT id, branch_id, status, doc_no, entry_date, supplier_id, supplier_name, supplier_invoice_no,
+        `SELECT id, branch_id, status, doc_no, financial_year, entry_date, supplier_id, supplier_name, supplier_invoice_no,
                 supplier_invoice_date, grand_total, amount_paid, (grand_total - amount_paid)::numeric(14,2) AS balance_due
          FROM erp.purchase_bills
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR supplier_id = $2)
            AND ($3::date IS NULL OR entry_date >= $3) AND ($4::date IS NULL OR entry_date <= $4)
            AND ($5::text IS NULL OR doc_no ILIKE $5 OR supplier_invoice_no ILIKE $5 OR supplier_name ILIKE $5)
            AND (NOT $8 OR (status = 'posted' AND grand_total - amount_paid > 0))
+           AND ($9::text IS NULL OR financial_year = $9)
          ORDER BY entry_date DESC, created_at DESC
          LIMIT $6 OFFSET $7`,
         [
@@ -178,6 +180,7 @@ export function registerPurchaseBillRoutes(app: FastifyInstance, { guards }: App
           page.limit + 1,
           page.offset,
           q.unpaid,
+          q.financialYear ?? null,
         ],
       ),
     );

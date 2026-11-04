@@ -6,6 +6,7 @@ import { Permissions } from '../../auth/roles.js';
 import { query } from '../../db/sql.js';
 import type { DbClient } from '../../db/transaction.js';
 import { IsoDate, Uuid } from '../../http/validation.js';
+import { AppError } from '../../http/errors.js';
 import { type Column, buildWorkbook, sendXlsx } from './excel.js';
 import { buildGstr1, toPortalJson, toWorkbookSheets } from './gstr1.js';
 
@@ -33,7 +34,29 @@ interface Report {
 
 const Format = z.enum(['json', 'xlsx']).default('json');
 const Period = z.string().regex(/^[0-9]{4}-(0[1-9]|1[0-2])$/, "Period must be 'YYYY-MM'");
-const Range = z.object({ from: IsoDate, to: IsoDate, branchId: Uuid.optional(), format: Format });
+const RangeRaw = z.object({
+  from: IsoDate.optional(),
+  to: IsoDate.optional(),
+  financialYear: z.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
+  branchId: Uuid.optional(),
+  format: Format,
+});
+
+function normalizeRange<T extends { from?: string; to?: string; financialYear?: string }>(input: T) {
+  if (!((input.from && input.to) || input.financialYear)) {
+    throw new AppError(400, 'VALIDATION_FAILED', 'Either from and to, or financialYear must be provided');
+  }
+  if (input.financialYear && (!input.from || !input.to)) {
+    const startYear = parseInt(input.financialYear.slice(0, 4), 10);
+    const endYear = startYear + 1;
+    return {
+      ...input,
+      from: input.from ?? `${startYear}-04-01`,
+      to: input.to ?? `${endYear}-03-31`,
+    };
+  }
+  return input as T & { from: string; to: string };
+}
 
 /** Exact sums of the money / quantity columns, for the totals row. */
 function totalsOf(rows: Record<string, unknown>[], columns: Column[]): Record<string, string> {
@@ -117,9 +140,11 @@ export function registerReportRoutes(app: FastifyInstance, { guards }: AppContex
 
   // ---- Sales summary -------------------------------------------------------------
   app.get('/reports/sales', guard, async (request, reply) => {
-    const q = Range.extend({
-      groupBy: z.enum(['day', 'month', 'product', 'customer']).default('day'),
-    }).parse(request.query);
+    const q = normalizeRange(
+      RangeRaw.extend({
+        groupBy: z.enum(['day', 'month', 'product', 'customer']).default('day'),
+      }).parse(request.query),
+    );
     const params = [q.from, q.to, q.branchId ?? null];
     const where = (alias: string, dateCol: string) =>
       `${alias}.status = 'posted' AND ${alias}.${dateCol} BETWEEN $1 AND $2
@@ -319,7 +344,7 @@ export function registerReportRoutes(app: FastifyInstance, { guards }: AppContex
 
   // ---- Purchase register (for input tax credit) -------------------------------------
   app.get('/reports/purchases', guard, async (request, reply) => {
-    const q = Range.parse(request.query);
+    const q = normalizeRange(RangeRaw.parse(request.query));
     return respond(request, reply, q.format, `Purchase_register_${q.from}_${q.to}`, async (c) => ({
       title: 'Purchase register',
       columns: [
