@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "migrate": "node database/scripts/migrate.mjs",
+    "create-super-admin": "node database/scripts/create-super-admin.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
