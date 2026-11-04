@@ -42895,7 +42895,7 @@ var require_range = __commonJS({
   "../node_modules/semver/classes/range.js"(exports2, module2) {
     "use strict";
     var SPACE_CHARACTERS = /\s+/g;
-    var Range2 = class _Range {
+    var Range = class _Range {
       constructor(range, options) {
         options = parseOptions(options);
         if (range instanceof _Range) {
@@ -43034,7 +43034,7 @@ var require_range = __commonJS({
         return false;
       }
     };
-    module2.exports = Range2;
+    module2.exports = Range;
     var LRU = require_lrucache();
     var cache2 = new LRU();
     var parseOptions = require_parse_options();
@@ -43346,12 +43346,12 @@ var require_comparator = __commonJS({
           if (this.value === "") {
             return true;
           }
-          return new Range2(comp.value, options).test(this.value);
+          return new Range(comp.value, options).test(this.value);
         } else if (comp.operator === "") {
           if (comp.value === "") {
             return true;
           }
-          return new Range2(this.value, options).test(comp.semver);
+          return new Range(this.value, options).test(comp.semver);
         }
         options = parseOptions(options);
         if (options.includePrerelease && (this.value === "<0.0.0-0" || comp.value === "<0.0.0-0")) {
@@ -43384,7 +43384,7 @@ var require_comparator = __commonJS({
     var cmp = require_cmp();
     var debug = require_debug2();
     var SemVer = require_semver();
-    var Range2 = require_range();
+    var Range = require_range();
   }
 });
 
@@ -43392,10 +43392,10 @@ var require_comparator = __commonJS({
 var require_satisfies = __commonJS({
   "../node_modules/semver/functions/satisfies.js"(exports2, module2) {
     "use strict";
-    var Range2 = require_range();
+    var Range = require_range();
     var satisfies = (version3, range, options) => {
       try {
-        range = new Range2(range, options);
+        range = new Range(range, options);
       } catch (er) {
         return false;
       }
@@ -43409,8 +43409,8 @@ var require_satisfies = __commonJS({
 var require_to_comparators = __commonJS({
   "../node_modules/semver/ranges/to-comparators.js"(exports2, module2) {
     "use strict";
-    var Range2 = require_range();
-    var toComparators = (range, options) => new Range2(range, options).set.map((comp) => comp.map((c) => c.value).join(" ").trim().split(" "));
+    var Range = require_range();
+    var toComparators = (range, options) => new Range(range, options).set.map((comp) => comp.map((c) => c.value).join(" ").trim().split(" "));
     module2.exports = toComparators;
   }
 });
@@ -43420,13 +43420,13 @@ var require_max_satisfying = __commonJS({
   "../node_modules/semver/ranges/max-satisfying.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver();
-    var Range2 = require_range();
+    var Range = require_range();
     var maxSatisfying = (versions, range, options) => {
       let max2 = null;
       let maxSV = null;
       let rangeObj = null;
       try {
-        rangeObj = new Range2(range, options);
+        rangeObj = new Range(range, options);
       } catch (er) {
         return null;
       }
@@ -43449,13 +43449,13 @@ var require_min_satisfying = __commonJS({
   "../node_modules/semver/ranges/min-satisfying.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver();
-    var Range2 = require_range();
+    var Range = require_range();
     var minSatisfying = (versions, range, options) => {
       let min2 = null;
       let minSV = null;
       let rangeObj = null;
       try {
-        rangeObj = new Range2(range, options);
+        rangeObj = new Range(range, options);
       } catch (er) {
         return null;
       }
@@ -43478,10 +43478,10 @@ var require_min_version = __commonJS({
   "../node_modules/semver/ranges/min-version.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver();
-    var Range2 = require_range();
+    var Range = require_range();
     var gt = require_gt();
     var minVersion = (range, loose) => {
-      range = new Range2(range, loose);
+      range = new Range(range, loose);
       let minver = new SemVer("0.0.0");
       if (range.test(minver)) {
         return minver;
@@ -43536,10 +43536,10 @@ var require_min_version = __commonJS({
 var require_valid2 = __commonJS({
   "../node_modules/semver/ranges/valid.js"(exports2, module2) {
     "use strict";
-    var Range2 = require_range();
+    var Range = require_range();
     var validRange = (range, options) => {
       try {
-        return new Range2(range, options).range || "*";
+        return new Range(range, options).range || "*";
       } catch (er) {
         return null;
       }
@@ -43555,7 +43555,7 @@ var require_outside = __commonJS({
     var SemVer = require_semver();
     var Comparator = require_comparator();
     var { ANY } = Comparator;
-    var Range2 = require_range();
+    var Range = require_range();
     var satisfies = require_satisfies();
     var gt = require_gt();
     var lt = require_lt();
@@ -43563,7 +43563,7 @@ var require_outside = __commonJS({
     var gte = require_gte();
     var outside = (version3, range, hilo, options) => {
       version3 = new SemVer(version3, options);
-      range = new Range2(range, options);
+      range = new Range(range, options);
       let gtfn, ltefn, ltfn, comp, ecomp;
       switch (hilo) {
         case ">":
@@ -43641,10 +43641,10 @@ var require_ltr = __commonJS({
 var require_intersects = __commonJS({
   "../node_modules/semver/ranges/intersects.js"(exports2, module2) {
     "use strict";
-    var Range2 = require_range();
+    var Range = require_range();
     var intersects = (r1, r2, options) => {
-      r1 = new Range2(r1, options);
-      r2 = new Range2(r2, options);
+      r1 = new Range(r1, options);
+      r2 = new Range(r2, options);
       return r1.intersects(r2, options);
     };
     module2.exports = intersects;
@@ -43705,7 +43705,7 @@ var require_simplify = __commonJS({
 var require_subset = __commonJS({
   "../node_modules/semver/ranges/subset.js"(exports2, module2) {
     "use strict";
-    var Range2 = require_range();
+    var Range = require_range();
     var Comparator = require_comparator();
     var { ANY } = Comparator;
     var satisfies = require_satisfies();
@@ -43714,8 +43714,8 @@ var require_subset = __commonJS({
       if (sub2 === dom) {
         return true;
       }
-      sub2 = new Range2(sub2, options);
-      dom = new Range2(dom, options);
+      sub2 = new Range(sub2, options);
+      dom = new Range(dom, options);
       let sawNonNull = false;
       OUTER: for (const simpleSub of sub2.set) {
         for (const simpleDom of dom.set) {
@@ -43896,7 +43896,7 @@ var require_semver2 = __commonJS({
     var coerce = require_coerce();
     var truncate2 = require_truncate();
     var Comparator = require_comparator();
-    var Range2 = require_range();
+    var Range = require_range();
     var satisfies = require_satisfies();
     var toComparators = require_to_comparators();
     var maxSatisfying = require_max_satisfying();
@@ -43935,7 +43935,7 @@ var require_semver2 = __commonJS({
       coerce,
       truncate: truncate2,
       Comparator,
-      Range: Range2,
+      Range,
       satisfies,
       toComparators,
       maxSatisfying,
@@ -99998,7 +99998,7 @@ var require_col_cache = __commonJS({
 var require_range2 = __commonJS({
   "../node_modules/exceljs/lib/doc/range.js"(exports2, module2) {
     var colCache = require_col_cache();
-    var Range2 = class _Range {
+    var Range = class _Range {
       constructor() {
         this.decode(arguments);
       }
@@ -100204,7 +100204,7 @@ var require_range2 = __commonJS({
         }
       }
     };
-    module2.exports = Range2;
+    module2.exports = Range;
   }
 });
 
@@ -102533,7 +102533,7 @@ var require_worksheet = __commonJS({
   "../node_modules/exceljs/lib/doc/worksheet.js"(exports2, module2) {
     var _2 = require_under_dash();
     var colCache = require_col_cache();
-    var Range2 = require_range2();
+    var Range = require_range2();
     var Row = require_row();
     var Column = require_column();
     var Enums = require_enums();
@@ -102655,7 +102655,7 @@ var require_worksheet = __commonJS({
       }
       // Get the bounding range of the cells in this worksheet
       get dimensions() {
-        const dimensions = new Range2();
+        const dimensions = new Range();
         this._rows.forEach((row) => {
           if (row) {
             const rowDims = row.dimensions;
@@ -102996,11 +102996,11 @@ var require_worksheet = __commonJS({
       // Merge
       // convert the range defined by ['tl:br'], [tl,br] or [t,l,b,r] into a single 'merged' cell
       mergeCells(...cells) {
-        const dimensions = new Range2(cells);
+        const dimensions = new Range(cells);
         this._mergeCellsInternal(dimensions);
       }
       mergeCellsWithoutStyle(...cells) {
-        const dimensions = new Range2(cells);
+        const dimensions = new Range(cells);
         this._mergeCellsInternal(dimensions, true);
       }
       _mergeCellsInternal(dimensions, ignoreStyle) {
@@ -103037,7 +103037,7 @@ var require_worksheet = __commonJS({
       // un-merge the group. Note this function can affect multiple merges and merge-blocks are
       // atomic - either they're all merged or all un-merged.
       unMergeCells(...cells) {
-        const dimensions = new Range2(cells);
+        const dimensions = new Range(cells);
         for (let i = dimensions.top; i <= dimensions.bottom; i++) {
           for (let j = dimensions.left; j <= dimensions.right; j++) {
             const cell = this.findCell(i, j);
@@ -103209,7 +103209,7 @@ var require_worksheet = __commonJS({
         };
         model.cols = Column.toModel(this.columns);
         const rows = model.rows = [];
-        const dimensions = model.dimensions = new Range2();
+        const dimensions = model.dimensions = new Range();
         this._rows.forEach((row) => {
           const rowModel = row && row.model;
           if (rowModel) {
@@ -103417,7 +103417,7 @@ var require_defined_names = __commonJS({
     var _2 = require_under_dash();
     var colCache = require_col_cache();
     var CellMatrix = require_cell_matrix();
-    var Range2 = require_range2();
+    var Range = require_range2();
     var rangeRegexp = /[$](\w+)[$](\d+)(:[$](\w+)[$](\d+))?/;
     var DefinedNames = class {
       constructor() {
@@ -103482,7 +103482,7 @@ var require_defined_names = __commonJS({
       _explore(matrix, cell) {
         cell.mark = false;
         const { sheetName } = cell;
-        const range = new Range2(cell.row, cell.col, cell.row, cell.col, sheetName);
+        const range = new Range(cell.row, cell.col, cell.row, cell.col, sheetName);
         let x;
         let y;
         function vGrow(yy, edge) {
@@ -122205,7 +122205,7 @@ var require_rel_type = __commonJS({
 var require_merges = __commonJS({
   "../node_modules/exceljs/lib/xlsx/xform/sheet/merges.js"(exports2, module2) {
     var _2 = require_under_dash();
-    var Range2 = require_range2();
+    var Range = require_range2();
     var colCache = require_col_cache();
     var Enums = require_enums();
     var Merges = class {
@@ -122217,7 +122217,7 @@ var require_merges = __commonJS({
           this.merges[merge2.master].expandToAddress(merge2.address);
         } else {
           const range = `${merge2.master}:${merge2.address}`;
-          this.merges[merge2.master] = new Range2(range);
+          this.merges[merge2.master] = new Range(range);
         }
       }
       get mergeCells() {
@@ -122256,7 +122256,7 @@ var require_cell_xform = __commonJS({
   "../node_modules/exceljs/lib/xlsx/xform/sheet/cell-xform.js"(exports2, module2) {
     var utils = require_utils8();
     var BaseXform = require_base_xform();
-    var Range2 = require_range2();
+    var Range = require_range2();
     var Enums = require_enums();
     var RichTextXform = require_rich_text_xform();
     function getValueType(v) {
@@ -122354,7 +122354,7 @@ var require_cell_xform = __commonJS({
               if (master.si === void 0) {
                 master.shareType = "shared";
                 master.si = options.siFormulae++;
-                master.range = new Range2(master.address, model.address);
+                master.range = new Range(master.address, model.address);
               } else if (master.range) {
                 master.range.expandToAddress(model.address);
               }
@@ -123011,7 +123011,7 @@ var require_data_validations_xform = __commonJS({
     var utils = require_utils8();
     var colCache = require_col_cache();
     var BaseXform = require_base_xform();
-    var Range2 = require_range2();
+    var Range = require_range2();
     function assign(definedName, attributes, name, defaultValue) {
       const value = attributes[name];
       if (value !== void 0) {
@@ -123196,7 +123196,7 @@ var require_data_validations_xform = __commonJS({
             const list = this._address.split(/\s+/g) || [];
             list.forEach((addr) => {
               if (addr.includes(":")) {
-                const range = new Range2(addr);
+                const range = new Range(addr);
                 range.forEachAddress((address) => {
                   this.model[address] = this._dataValidation;
                 });
@@ -124571,7 +124571,7 @@ var require_cf_rule_xform = __commonJS({
   "../node_modules/exceljs/lib/xlsx/xform/sheet/cf/cf-rule-xform.js"(exports2, module2) {
     var BaseXform = require_base_xform();
     var CompositeXform = require_composite_xform();
-    var Range2 = require_range2();
+    var Range = require_range2();
     var DatabarXform = require_databar_xform();
     var ExtLstRefXform = require_ext_lst_ref_xform();
     var FormulaXform = require_formula_xform();
@@ -124586,7 +124586,7 @@ var require_cf_rule_xform = __commonJS({
       if (model.formulae && model.formulae[0]) {
         return model.formulae[0];
       }
-      const range = new Range2(model.ref);
+      const range = new Range(model.ref);
       const { tl } = range;
       switch (model.operator) {
         case "containsText":
@@ -124607,7 +124607,7 @@ var require_cf_rule_xform = __commonJS({
       if (model.formulae && model.formulae[0]) {
         return model.formulae[0];
       }
-      const range = new Range2(model.ref);
+      const range = new Range(model.ref);
       const { tl } = range;
       switch (model.timePeriod) {
         case "thisWeek":
@@ -193432,7 +193432,7 @@ var AuthService = class {
           c,
           `INSERT INTO erp.users (full_name, email, phone, password_hash)
            VALUES ($1, $2, $3, $4)
-           RETURNING id, full_name, email, phone`,
+           RETURNING id, full_name, email, phone, is_platform_admin`,
           [input2.fullName, input2.email ?? null, input2.phone ?? null, passwordHash]
         );
         return toProfile(row);
@@ -193558,7 +193558,7 @@ var AuthService = class {
     return withTransaction(this.pool, ctx, async (c) => {
       const user = await queryOne(
         c,
-        "SELECT id, full_name, email, phone FROM erp.users WHERE id = $1",
+        "SELECT id, full_name, email, phone, is_platform_admin FROM erp.users WHERE id = $1",
         [ctx.userId]
       );
       const memberships = await query(
@@ -193611,7 +193611,13 @@ var AuthService = class {
   }
 };
 function toProfile(row) {
-  return { id: row.id, fullName: row.full_name, email: row.email, phone: row.phone };
+  return {
+    id: row.id,
+    fullName: row.full_name,
+    email: row.email,
+    phone: row.phone,
+    isPlatformAdmin: Boolean(row.is_platform_admin)
+  };
 }
 async function logEventIn(c, type, userId, details) {
   await c.query(`SELECT audit.log_event($1, 'user', $2, $3)`, [
@@ -193694,7 +193700,7 @@ function registerAuthRoutes(app, ctx) {
 
 // ../api/src/auth/guards.ts
 var SESSION_SQL = `
-  SELECT m.role, m.branch_ids
+  SELECT m.role, m.branch_ids, u.is_platform_admin
   FROM erp.users u
   JOIN erp.user_sessions s
     ON s.user_id = u.id AND s.family_id = $2 AND s.revoked_at IS NULL AND s.expires_at > now()
@@ -193729,7 +193735,7 @@ function createGuards(pool, tokens) {
     if (!row) {
       throw new AppError(401, "SESSION_REVOKED", "Your session has ended. Please sign in again.");
     }
-    if (tenantId && !row.role) {
+    if (tenantId && !row.role && !row.is_platform_admin) {
       throw new AppError(403, "NOT_A_MEMBER", "You are not a member of this shop");
     }
     request.auth = {
@@ -193737,7 +193743,8 @@ function createGuards(pool, tokens) {
       sessionId: claims.sessionId,
       tenantId: row.role ? tenantId : null,
       role: row.role,
-      branchIds: row.branch_ids
+      branchIds: row.branch_ids,
+      isPlatformAdmin: row.is_platform_admin
     };
   }
   return {
@@ -193748,6 +193755,12 @@ function createGuards(pool, tokens) {
         const { role } = tenantOf(request);
         if (!roles.includes(role)) throw forbidden();
       };
+    },
+    platformAdmin: async (request) => {
+      await authenticate(request);
+      if (!request.auth?.isPlatformAdmin) {
+        throw forbidden("Platform admin access required");
+      }
     }
   };
 }
@@ -193877,6 +193890,22 @@ var toTenant = (r) => ({
   pan: r.pan,
   plan: r.plan,
   status: r.status,
+  features: r.features ?? {
+    billing: true,
+    inventory: true,
+    wallet_fifo: true,
+    multi_branch: false,
+    credit_limits: true,
+    reports: true,
+    purchases: true
+  },
+  subscriptionStatus: r.subscription_status ?? "active",
+  subscriptionPeriod: r.subscription_period ?? "annual",
+  subscriptionAmount: r.subscription_amount ?? "0.00",
+  subscriptionValidUntil: r.subscription_valid_until ?? null,
+  gracePeriodDays: r.grace_period_days ?? 7,
+  maxBranches: r.max_branches ?? 1,
+  maxUsers: r.max_users ?? 5,
   version: r.version,
   createdAt: r.created_at
 });
@@ -194688,7 +194717,8 @@ var CreateBody = external_exports.object({
 var ListQuery = PageQuery.extend({
   invoiceId: Uuid.optional(),
   partyId: Uuid.optional(),
-  status: external_exports.enum(["draft", "posted", "cancelled"]).optional()
+  status: external_exports.enum(["draft", "posted", "cancelled"]).optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional()
 });
 async function loadCreditNote(c, id) {
   const cn = await queryOne(
@@ -194777,15 +194807,23 @@ function registerCreditNoteRoutes(app, { guards }) {
     const rows = await request.tx(
       (c) => query(
         c,
-        `SELECT n.id, n.branch_id, n.status, n.note_no, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
+        `SELECT n.id, n.branch_id, n.status, n.note_no, n.financial_year, n.note_date, n.invoice_id, i.invoice_no, n.party_id,
                 n.customer_name, n.reason, n.restock, n.grand_total,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = n.party_id), 'walk_in') AS customer_type
          FROM erp.credit_notes n JOIN erp.sales_invoices i ON i.id = n.invoice_id
          WHERE ($1::uuid IS NULL OR n.invoice_id = $1) AND ($2::uuid IS NULL OR n.party_id = $2)
            AND ($3::text IS NULL OR n.status = $3)
+           AND ($6::text IS NULL OR n.financial_year = $6)
          ORDER BY n.note_date DESC, n.created_at DESC
          LIMIT $4 OFFSET $5`,
-        [q.invoiceId ?? null, q.partyId ?? null, q.status ?? null, page.limit + 1, page.offset]
+        [
+          q.invoiceId ?? null,
+          q.partyId ?? null,
+          q.status ?? null,
+          page.limit + 1,
+          page.offset,
+          q.financialYear ?? null
+        ]
       )
     );
     const result = toPage(rows, page);
@@ -195734,6 +195772,7 @@ var ListQuery2 = PageQuery.extend({
   supplierId: Uuid.optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
   search: external_exports.string().trim().optional(),
   /** Only posted bills with money still to pay (for the supplier-payment screen). */
   unpaid: external_exports.enum(["true", "false"]).optional().transform((v) => v === "true")
@@ -195814,13 +195853,14 @@ function registerPurchaseBillRoutes(app, { guards }) {
     const rows = await request.tx(
       (c) => query(
         c,
-        `SELECT id, branch_id, status, doc_no, entry_date, supplier_id, supplier_name, supplier_invoice_no,
+        `SELECT id, branch_id, status, doc_no, financial_year, entry_date, supplier_id, supplier_name, supplier_invoice_no,
                 supplier_invoice_date, grand_total, amount_paid, (grand_total - amount_paid)::numeric(14,2) AS balance_due
          FROM erp.purchase_bills
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR supplier_id = $2)
            AND ($3::date IS NULL OR entry_date >= $3) AND ($4::date IS NULL OR entry_date <= $4)
            AND ($5::text IS NULL OR doc_no ILIKE $5 OR supplier_invoice_no ILIKE $5 OR supplier_name ILIKE $5)
            AND (NOT $8 OR (status = 'posted' AND grand_total - amount_paid > 0))
+           AND ($9::text IS NULL OR financial_year = $9)
          ORDER BY entry_date DESC, created_at DESC
          LIMIT $6 OFFSET $7`,
         [
@@ -195831,7 +195871,8 @@ function registerPurchaseBillRoutes(app, { guards }) {
           q.search ? containsPattern(q.search) : null,
           page.limit + 1,
           page.offset,
-          q.unpaid
+          q.unpaid,
+          q.financialYear ?? null
         ]
       )
     );
@@ -195943,7 +195984,8 @@ var ListQuery3 = PageQuery.extend({
   supplierId: Uuid.optional(),
   status: external_exports.enum(["draft", "posted", "cancelled"]).optional(),
   from: IsoDate.optional(),
-  to: IsoDate.optional()
+  to: IsoDate.optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional()
 });
 async function loadSupplierPayment(c, id) {
   const p = await queryOne(c, "SELECT * FROM erp.supplier_payments WHERE id = $1", [id]);
@@ -195971,6 +196013,7 @@ function registerSupplierPaymentRoutes(app, { guards }) {
          FROM erp.supplier_payments s JOIN erp.parties p ON p.id = s.supplier_id
          WHERE ($1::uuid IS NULL OR s.supplier_id = $1) AND ($2::text IS NULL OR s.status = $2)
            AND ($3::date IS NULL OR s.payment_date >= $3) AND ($4::date IS NULL OR s.payment_date <= $4)
+           AND ($7::text IS NULL OR s.financial_year = $7)
          ORDER BY s.payment_date DESC, s.created_at DESC
          LIMIT $5 OFFSET $6`,
           [
@@ -195979,7 +196022,8 @@ function registerSupplierPaymentRoutes(app, { guards }) {
             q.from ?? null,
             q.to ?? null,
             page.limit + 1,
-            page.offset
+            page.offset,
+            q.financialYear ?? null
           ]
         )
       );
@@ -196058,7 +196102,8 @@ var ListQuery4 = PageQuery.extend({
   partyId: Uuid.optional(),
   status: external_exports.enum(["draft", "posted", "cancelled"]).optional(),
   from: IsoDate.optional(),
-  to: IsoDate.optional()
+  to: IsoDate.optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional()
 });
 async function insertReceipt(c, b, idempotencyKey = null) {
   const receipt = await insertRow(c, "erp.receipts", {
@@ -196134,6 +196179,7 @@ function registerReceiptRoutes(app, { guards }) {
                 coalesce(p.customer_type, 'walk_in') AS customer_type FROM erp.receipts r LEFT JOIN erp.parties p ON p.id = r.party_id
          WHERE ($1::uuid IS NULL OR r.party_id = $1) AND ($2::text IS NULL OR r.status = $2)
            AND ($3::date IS NULL OR r.receipt_date >= $3) AND ($4::date IS NULL OR r.receipt_date <= $4)
+           AND ($7::text IS NULL OR r.financial_year = $7)
          ORDER BY r.receipt_date DESC, r.created_at DESC
          LIMIT $5 OFFSET $6`,
         [
@@ -196142,7 +196188,8 @@ function registerReceiptRoutes(app, { guards }) {
           q.from ?? null,
           q.to ?? null,
           page.limit + 1,
-          page.offset
+          page.offset,
+          q.financialYear ?? null
         ]
       )
     );
@@ -196204,6 +196251,7 @@ var ListQuery5 = PageQuery.extend({
   branchId: Uuid.optional(),
   from: IsoDate.optional(),
   to: IsoDate.optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
   /** Invoice number or customer name. */
   search: external_exports.string().trim().optional(),
   /** Only posted invoices with money still to collect (for the receive-payment screen). */
@@ -196252,7 +196300,7 @@ function registerSalesInvoiceRoutes(app, { guards }) {
     const rows = await request.tx(
       (c) => query(
         c,
-        `SELECT id, branch_id, status, invoice_no, invoice_date, due_date, supply_type, party_id, customer_name,
+        `SELECT id, branch_id, status, invoice_no, financial_year, invoice_date, due_date, supply_type, party_id, customer_name,
                 customer_gstin, grand_total, amount_paid, amount_credited,
                 (grand_total - amount_credited - amount_paid)::numeric(14,2) AS balance_due, created_at,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
@@ -196262,6 +196310,7 @@ function registerSalesInvoiceRoutes(app, { guards }) {
            AND ($4::date IS NULL OR invoice_date >= $4) AND ($5::date IS NULL OR invoice_date <= $5)
            AND ($6::text IS NULL OR invoice_no ILIKE $6 OR customer_name ILIKE $6)
            AND (NOT $9 OR (status = 'posted' AND grand_total - amount_credited - amount_paid > 0))
+           AND ($10::text IS NULL OR financial_year = $10)
          ORDER BY invoice_date DESC, created_at DESC
          LIMIT $7 OFFSET $8`,
         [
@@ -196273,7 +196322,8 @@ function registerSalesInvoiceRoutes(app, { guards }) {
           q.search ? containsPattern(q.search) : null,
           page.limit + 1,
           page.offset,
-          q.unpaid
+          q.unpaid,
+          q.financialYear ?? null
         ]
       )
     );
@@ -196434,7 +196484,8 @@ var UpdateBody3 = QuoteFields.extend({ version: Version });
 var ListQuery6 = PageQuery.extend({
   status: external_exports.enum(["draft", "issued", "accepted", "rejected", "converted", "cancelled"]).optional(),
   partyId: Uuid.optional(),
-  search: external_exports.string().trim().optional()
+  search: external_exports.string().trim().optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional()
 });
 async function buildQuotation(c, input2) {
   const customer = await resolveCustomer(c, input2);
@@ -196481,12 +196532,13 @@ function registerQuotationRoutes(app, { guards }) {
     const rows = await request.tx(
       (c) => query(
         c,
-        `SELECT id, branch_id, status, quote_no, quote_date, valid_until, party_id, customer_name, grand_total,
+        `SELECT id, branch_id, status, quote_no, financial_year, quote_date, valid_until, party_id, customer_name, grand_total,
                 invoice_id, created_at,
                 coalesce((SELECT pp.customer_type FROM erp.parties pp WHERE pp.id = party_id), 'walk_in') AS customer_type
          FROM erp.quotations
          WHERE ($1::text IS NULL OR status = $1) AND ($2::uuid IS NULL OR party_id = $2)
            AND ($3::text IS NULL OR quote_no ILIKE $3 OR customer_name ILIKE $3)
+           AND ($6::text IS NULL OR financial_year = $6)
          ORDER BY quote_date DESC, created_at DESC
          LIMIT $4 OFFSET $5`,
         [
@@ -196494,7 +196546,8 @@ function registerQuotationRoutes(app, { guards }) {
           q.partyId ?? null,
           q.search ? containsPattern(q.search) : null,
           page.limit + 1,
-          page.offset
+          page.offset,
+          q.financialYear ?? null
         ]
       )
     );
@@ -197158,7 +197211,28 @@ function toWorkbookSheets(g, stateNames) {
 // ../api/src/modules/reports/reports.ts
 var Format = external_exports.enum(["json", "xlsx"]).default("json");
 var Period2 = external_exports.string().regex(/^[0-9]{4}-(0[1-9]|1[0-2])$/, "Period must be 'YYYY-MM'");
-var Range = external_exports.object({ from: IsoDate, to: IsoDate, branchId: Uuid.optional(), format: Format });
+var RangeRaw = external_exports.object({
+  from: IsoDate.optional(),
+  to: IsoDate.optional(),
+  financialYear: external_exports.string().regex(/^[0-9]{4}-[0-9]{2}$/).optional(),
+  branchId: Uuid.optional(),
+  format: Format
+});
+function normalizeRange(input2) {
+  if (!(input2.from && input2.to || input2.financialYear)) {
+    throw new AppError(400, "VALIDATION_FAILED", "Either from and to, or financialYear must be provided");
+  }
+  if (input2.financialYear && (!input2.from || !input2.to)) {
+    const startYear = parseInt(input2.financialYear.slice(0, 4), 10);
+    const endYear = startYear + 1;
+    return {
+      ...input2,
+      from: input2.from ?? `${startYear}-04-01`,
+      to: input2.to ?? `${endYear}-03-31`
+    };
+  }
+  return input2;
+}
 function totalsOf(rows, columns) {
   const totals = {};
   for (const c of columns) {
@@ -197220,9 +197294,11 @@ function registerReportRoutes(app, { guards }) {
     return gstr1;
   });
   app.get("/reports/sales", guard, async (request, reply) => {
-    const q = Range.extend({
-      groupBy: external_exports.enum(["day", "month", "product", "customer"]).default("day")
-    }).parse(request.query);
+    const q = normalizeRange(
+      RangeRaw.extend({
+        groupBy: external_exports.enum(["day", "month", "product", "customer"]).default("day")
+      }).parse(request.query)
+    );
     const params = [q.from, q.to, q.branchId ?? null];
     const where = (alias, dateCol) => `${alias}.status = 'posted' AND ${alias}.${dateCol} BETWEEN $1 AND $2
        AND ($3::uuid IS NULL OR ${alias}.branch_id = $3)`;
@@ -197406,7 +197482,7 @@ function registerReportRoutes(app, { guards }) {
     }));
   });
   app.get("/reports/purchases", guard, async (request, reply) => {
-    const q = Range.parse(request.query);
+    const q = normalizeRange(RangeRaw.parse(request.query));
     return respond(request, reply, q.format, `Purchase_register_${q.from}_${q.to}`, async (c) => ({
       title: "Purchase register",
       columns: [
@@ -197538,6 +197614,336 @@ function registerStockRoutes(app, { guards }) {
   );
 }
 
+// ../api/src/modules/super-admin/super-admin.ts
+var TenantCreateSchema = external_exports.object({
+  name: NonEmpty,
+  legalName: external_exports.string().trim().nullable().optional(),
+  pan: external_exports.string().trim().toUpperCase().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "Invalid PAN").nullable().optional(),
+  plan: external_exports.enum(["trial", "starter", "professional", "enterprise"]).default("starter"),
+  subscriptionPeriod: external_exports.enum(["monthly", "quarterly", "annual", "lifetime"]).default("annual"),
+  subscriptionAmount: PositiveMoney.default("0.00"),
+  subscriptionValidUntil: IsoDate.optional(),
+  gracePeriodDays: external_exports.number().int().min(0).max(90).default(7),
+  maxBranches: external_exports.number().int().min(1).max(100).default(1),
+  maxUsers: external_exports.number().int().min(1).max(500).default(5),
+  features: external_exports.record(external_exports.string(), external_exports.boolean()).optional(),
+  adminNotes: external_exports.string().trim().max(2e3).optional(),
+  owner: external_exports.object({
+    fullName: NonEmpty,
+    phone: Phone.optional(),
+    email: Email.optional(),
+    password: external_exports.string().min(8, "Password must be at least 8 characters")
+  }).refine((o) => o.phone || o.email, {
+    message: "Owner phone or email is required",
+    path: ["phone"]
+  }),
+  branch: external_exports.object({
+    code: external_exports.string().trim().toUpperCase().regex(/^[A-Z0-9]{1,4}$/).default("MAIN"),
+    name: NonEmpty.default("Main Branch"),
+    stateCode: StateCode.default("07"),
+    gstin: Gstin.optional()
+  })
+});
+var TenantUpdateSchema = external_exports.object({
+  name: NonEmpty.optional(),
+  legalName: external_exports.string().trim().nullable().optional(),
+  pan: external_exports.string().trim().toUpperCase().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/).nullable().optional(),
+  plan: external_exports.enum(["trial", "starter", "professional", "enterprise"]).optional(),
+  status: external_exports.enum(["active", "suspended", "closed"]).optional(),
+  subscriptionStatus: external_exports.enum(["trial", "active", "grace_period", "suspended", "cancelled"]).optional(),
+  subscriptionPeriod: external_exports.enum(["monthly", "quarterly", "annual", "lifetime"]).optional(),
+  subscriptionAmount: PositiveMoney.optional(),
+  subscriptionValidUntil: IsoDate.nullable().optional(),
+  gracePeriodDays: external_exports.number().int().min(0).max(90).optional(),
+  maxBranches: external_exports.number().int().min(1).max(100).optional(),
+  maxUsers: external_exports.number().int().min(1).max(500).optional(),
+  adminNotes: external_exports.string().trim().max(2e3).nullable().optional()
+});
+var FeaturesUpdateSchema = external_exports.object({
+  billing: external_exports.boolean().optional(),
+  inventory: external_exports.boolean().optional(),
+  wallet_fifo: external_exports.boolean().optional(),
+  multi_branch: external_exports.boolean().optional(),
+  credit_limits: external_exports.boolean().optional(),
+  reports: external_exports.boolean().optional(),
+  purchases: external_exports.boolean().optional()
+});
+var PaymentRecordSchema = external_exports.object({
+  amount: PositiveMoney,
+  paymentDate: IsoDate.optional(),
+  mode: external_exports.enum(["cash", "upi", "bank_transfer", "cheque", "card"]),
+  referenceNo: external_exports.string().trim().max(100).optional(),
+  notes: external_exports.string().trim().max(1e3).optional()
+});
+var ExtendValiditySchema = external_exports.object({
+  days: external_exports.number().int().min(1).max(3650)
+});
+function registerSuperAdminRoutes(app, { guards, tokens }) {
+  const guard = { preHandler: guards.platformAdmin };
+  app.get("/super-admin/tenants", guard, async (request) => {
+    return request.tx(async (c) => {
+      const rows = await query(
+        c,
+        `SELECT
+           v.*,
+           (SELECT jsonb_build_object('id', u.id, 'fullName', u.full_name, 'phone', u.phone, 'email', u.email)
+            FROM erp.tenant_members m JOIN erp.users u ON u.id = m.user_id
+            WHERE m.tenant_id = v.tenant_id AND m.role = 'owner'
+            LIMIT 1) AS owner,
+           (SELECT count(*)::int FROM erp.tenant_members m WHERE m.tenant_id = v.tenant_id AND m.status = 'active') AS active_users_count,
+           (SELECT count(*)::int FROM erp.branches b WHERE b.tenant_id = v.tenant_id AND b.is_active = true) AS active_branches_count
+         FROM erp.v_tenant_subscription_summary v
+         ORDER BY v.created_at DESC`
+      );
+      return rows;
+    });
+  });
+  app.post("/super-admin/tenants", guard, async (request, reply) => {
+    const body = TenantCreateSchema.parse(request.body);
+    const result = await request.tx(async (c) => {
+      let ownerId;
+      const existingUser = await queryOne(
+        c,
+        "SELECT id FROM erp.users WHERE (email IS NOT NULL AND lower(email) = lower($1)) OR (phone IS NOT NULL AND phone = $2)",
+        [body.owner.email ?? null, body.owner.phone ?? null]
+      );
+      if (existingUser) {
+        ownerId = existingUser.id;
+      } else {
+        const hash2 = await hashPassword(body.owner.password);
+        const newUser = await queryOne(
+          c,
+          `INSERT INTO erp.users (full_name, email, phone, password_hash)
+           VALUES ($1, $2, $3, $4) RETURNING id`,
+          [body.owner.fullName, body.owner.email ?? null, body.owner.phone ?? null, hash2]
+        );
+        ownerId = newUser.id;
+      }
+      const defaultFeatures = {
+        billing: true,
+        inventory: true,
+        wallet_fifo: true,
+        multi_branch: false,
+        credit_limits: true,
+        reports: true,
+        purchases: true,
+        ...body.features
+      };
+      const tenant = await queryOne(
+        c,
+        `INSERT INTO erp.tenants
+           (name, legal_name, pan, plan, features, subscription_period,
+            subscription_amount, subscription_valid_until, grace_period_days, max_branches, max_users, admin_notes)
+         VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12)
+         RETURNING id`,
+        [
+          body.name,
+          body.legalName ?? null,
+          body.pan ?? null,
+          body.plan,
+          JSON.stringify(defaultFeatures),
+          body.subscriptionPeriod,
+          body.subscriptionAmount,
+          body.subscriptionValidUntil ?? null,
+          body.gracePeriodDays,
+          body.maxBranches,
+          body.maxUsers,
+          body.adminNotes ?? null
+        ]
+      );
+      const tenantId = tenant.id;
+      await c.query(
+        `INSERT INTO erp.tenant_members (tenant_id, user_id, role) VALUES ($1, $2, 'owner')`,
+        [tenantId, ownerId]
+      );
+      await c.query(
+        `INSERT INTO erp.branches (tenant_id, code, name, state_code, gstin)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [tenantId, body.branch.code, body.branch.name, body.branch.stateCode, body.branch.gstin ?? null]
+      );
+      if (Number(body.subscriptionAmount) > 0) {
+        const invNo = `SUB-${(/* @__PURE__ */ new Date()).getFullYear()}-${tenantId.slice(0, 6).toUpperCase()}`;
+        const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+        await c.query(
+          `INSERT INTO erp.platform_invoices
+             (tenant_id, invoice_no, billing_period_start, billing_period_end, amount, due_date, status)
+           VALUES ($1, $2, $3, coalesce($4, ($3::date + interval '1 year')::date), $5, ($3::date + interval '15 days')::date, 'unpaid')`,
+          [tenantId, invNo, today, body.subscriptionValidUntil ?? null, body.subscriptionAmount]
+        );
+      }
+      return { tenantId, ownerId };
+    });
+    return reply.status(201).send(result);
+  });
+  app.put("/super-admin/tenants/:id", guard, async (request) => {
+    const { id } = IdParams.parse(request.params);
+    const body = TenantUpdateSchema.parse(request.body);
+    const updated = await request.tx(async (c) => {
+      const row = await queryOne(
+        c,
+        `UPDATE erp.tenants SET
+           name = coalesce($2, name),
+           legal_name = coalesce($3, legal_name),
+           pan = coalesce($4, pan),
+           plan = coalesce($5, plan),
+           status = coalesce($6, status),
+           subscription_status = coalesce($7, subscription_status),
+           subscription_period = coalesce($8, subscription_period),
+           subscription_amount = coalesce($9, subscription_amount),
+           subscription_valid_until = CASE WHEN $10::boolean THEN $11::date ELSE subscription_valid_until END,
+           grace_period_days = coalesce($12, grace_period_days),
+           max_branches = coalesce($13, max_branches),
+           max_users = coalesce($14, max_users),
+           admin_notes = coalesce($15, admin_notes),
+           updated_at = now()
+         WHERE id = $1
+         RETURNING *`,
+        [
+          id,
+          body.name ?? null,
+          body.legalName ?? null,
+          body.pan ?? null,
+          body.plan ?? null,
+          body.status ?? null,
+          body.subscriptionStatus ?? null,
+          body.subscriptionPeriod ?? null,
+          body.subscriptionAmount ?? null,
+          body.subscriptionValidUntil !== void 0,
+          body.subscriptionValidUntil ?? null,
+          body.gracePeriodDays ?? null,
+          body.maxBranches ?? null,
+          body.maxUsers ?? null,
+          body.adminNotes ?? null
+        ]
+      );
+      if (!row) throw notFound("Tenant");
+      return row;
+    });
+    return updated;
+  });
+  app.put("/super-admin/tenants/:id/features", guard, async (request) => {
+    const { id } = IdParams.parse(request.params);
+    const body = FeaturesUpdateSchema.parse(request.body);
+    return request.tx(async (c) => {
+      const current = await queryOne(
+        c,
+        "SELECT features FROM erp.tenants WHERE id = $1",
+        [id]
+      );
+      if (!current) throw notFound("Tenant");
+      const merged = { ...current.features, ...body };
+      await c.query(
+        "UPDATE erp.tenants SET features = $2::jsonb, updated_at = now() WHERE id = $1",
+        [id, JSON.stringify(merged)]
+      );
+      return { id, features: merged };
+    });
+  });
+  app.get("/super-admin/tenants/:id/payments", guard, async (request) => {
+    const { id } = IdParams.parse(request.params);
+    return request.tx(async (c) => {
+      const payments = await query(
+        c,
+        "SELECT * FROM erp.platform_payments WHERE tenant_id = $1 ORDER BY payment_date DESC, created_at DESC",
+        [id]
+      );
+      const invoices = await query(
+        c,
+        "SELECT * FROM erp.platform_invoices WHERE tenant_id = $1 ORDER BY due_date DESC",
+        [id]
+      );
+      return { payments, invoices };
+    });
+  });
+  app.post("/super-admin/tenants/:id/payments", guard, async (request, reply) => {
+    const { id } = IdParams.parse(request.params);
+    const body = PaymentRecordSchema.parse(request.body);
+    const payment = await request.tx(async (c) => {
+      const p = await queryOne(
+        c,
+        `INSERT INTO erp.platform_payments
+           (tenant_id, amount, payment_date, mode, reference_no, notes, created_by)
+         VALUES ($1, $2, coalesce($3::date, (now() AT TIME ZONE 'Asia/Kolkata')::date), $4, $5, $6, $7)
+         RETURNING *`,
+        [
+          id,
+          body.amount,
+          body.paymentDate ?? null,
+          body.mode,
+          body.referenceNo ?? null,
+          body.notes ?? null,
+          request.auth?.userId
+        ]
+      );
+      const unpaid = await queryOne(
+        c,
+        `SELECT id, amount FROM erp.platform_invoices WHERE tenant_id = $1 AND status = 'unpaid' ORDER BY due_date ASC LIMIT 1`,
+        [id]
+      );
+      if (unpaid && Number(body.amount) >= Number(unpaid.amount)) {
+        await c.query(
+          `UPDATE erp.platform_invoices SET status = 'paid', paid_at = now() WHERE id = $1`,
+          [unpaid.id]
+        );
+      }
+      return p;
+    });
+    return reply.status(201).send(payment);
+  });
+  app.post("/super-admin/tenants/:id/extend-validity", guard, async (request) => {
+    const { id } = IdParams.parse(request.params);
+    const { days } = ExtendValiditySchema.parse(request.body);
+    return request.tx(async (c) => {
+      const current = await queryOne(
+        c,
+        "SELECT subscription_valid_until FROM erp.tenants WHERE id = $1",
+        [id]
+      );
+      if (!current) throw notFound("Tenant");
+      const updated = await queryOne(
+        c,
+        `UPDATE erp.tenants
+         SET subscription_valid_until = (coalesce(greatest(subscription_valid_until, (now() AT TIME ZONE 'Asia/Kolkata')::date), (now() AT TIME ZONE 'Asia/Kolkata')::date) + ($2 || ' days')::interval)::date,
+             subscription_status = 'active',
+             status = 'active',
+             updated_at = now()
+         WHERE id = $1
+         RETURNING id, subscription_valid_until, subscription_status, status`,
+        [id, days]
+      );
+      return updated;
+    });
+  });
+  app.post("/super-admin/impersonate/:id", guard, async (request) => {
+    const { id } = IdParams.parse(request.params);
+    return request.tx(async (c) => {
+      const tenant = await queryOne(
+        c,
+        "SELECT id, name FROM erp.tenants WHERE id = $1",
+        [id]
+      );
+      if (!tenant) throw notFound("Tenant");
+      const owner = await queryOne(
+        c,
+        `SELECT user_id FROM erp.tenant_members WHERE tenant_id = $1 AND role = 'owner' LIMIT 1`,
+        [id]
+      );
+      if (!owner) throw new AppError(400, "BUSINESS_RULE", "Tenant has no owner to impersonate");
+      const sessionId = request.auth.sessionId;
+      const accessToken = await tokens.createAccessToken({
+        userId: owner.user_id,
+        sessionId
+      });
+      return {
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        accessToken,
+        expiresIn: tokens.accessTokenTtlSeconds
+      };
+    });
+  });
+}
+
 // ../api/src/app.ts
 async function buildApp({ config: config3, pool }) {
   configurePgTypes();
@@ -197595,6 +198001,7 @@ async function buildApp({ config: config3, pool }) {
     async (v12) => {
       registerAuthRoutes(v12, ctx);
       registerReferenceRoutes(v12, ctx);
+      registerSuperAdminRoutes(v12, ctx);
       registerTenantRoutes(v12, ctx);
       registerMemberRoutes(v12, ctx);
       registerBranchRoutes(v12, ctx);
