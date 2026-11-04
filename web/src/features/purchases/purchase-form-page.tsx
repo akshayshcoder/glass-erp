@@ -138,8 +138,8 @@ function PurchaseForm({ bill }: { bill: PurchaseBill | null }) {
         title={bill ? 'Edit purchase bill' : 'New purchase bill'}
         subtitle="Enter the supplier's bill as received"
       />
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_21rem] xl:grid-cols-[1fr_23rem]">
+        <div className="space-y-4 sm:space-y-6">
           <Card className="space-y-3 p-4">
             <h2 className="text-sm font-semibold text-slate-900">Supplier</h2>
             {supplier ? (

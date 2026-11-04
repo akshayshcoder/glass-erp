@@ -264,30 +264,45 @@ function LineRow({
       : '';
 
   return (
-    <div data-row={row.key} className="grid gap-3 p-4 sm:grid-cols-[1.5rem_1fr_auto]">
-      <span className="pt-2 text-sm text-slate-400">{index + 1}</span>
+    <div data-row={row.key} className="grid gap-2 sm:gap-3 p-3 sm:p-4 grid-cols-1 sm:grid-cols-[1.5rem_1fr_auto] border-b border-slate-100 last:border-b-0">
+      <div className="flex items-center justify-between sm:hidden">
+        <span className="text-xs font-semibold text-slate-500">Item #{index + 1}</span>
+        <button
+          onClick={onRemove}
+          className="rounded p-1 text-slate-400 hover:bg-red-50 hover:text-red-600"
+          aria-label={`Remove ${product.name}`}
+        >
+          <Trash2 className="size-4" />
+        </button>
+      </div>
+      <span className="hidden sm:inline pt-2 text-sm text-slate-400">{index + 1}</span>
       <div className="space-y-2">
-        <p className="font-medium text-slate-900">
-          {product.name}
-          {spec && (
-            <span className="ml-2 inline-flex items-center rounded bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-600/20 ring-inset">
-              {spec}
+        <div className="flex items-baseline justify-between sm:block">
+          <p className="font-medium text-slate-900 text-sm sm:text-base">
+            {product.name}
+            {spec && (
+              <span className="ml-2 inline-flex items-center rounded bg-brand-50 px-1.5 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-600/20 ring-inset">
+                {spec}
+              </span>
+            )}
+            <span className="hidden sm:inline ml-2 text-xs font-normal text-slate-500">
+              HSN {product.hsnCode} · GST {Number(product.gstRate)}%
             </span>
-          )}
-          <span className="ml-2 text-xs font-normal text-slate-500">
-            HSN {product.hsnCode} · GST {Number(product.gstRate)}%
-          </span>
-          {sizeable(product) && (
-            <button
-              type="button"
-              onClick={() => onChange({ bySize: !bySize })}
-              className="ml-2 text-xs font-normal text-brand-700 hover:underline"
-            >
-              {bySize ? `enter ${product.unitCode} directly` : 'enter size'}
-            </button>
-          )}
-        </p>
-        <div className="flex flex-wrap items-end gap-2">
+            {sizeable(product) && (
+              <button
+                type="button"
+                onClick={() => onChange({ bySize: !bySize })}
+                className="ml-2 text-xs font-normal text-brand-700 hover:underline"
+              >
+                {bySize ? `enter ${product.unitCode} directly` : 'enter size'}
+              </button>
+            )}
+          </p>
+          <p className="sm:hidden num font-bold text-slate-900">
+            {priced ? rupees(priced.lineTotal) : '—'}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-end gap-1.5 sm:gap-2">
           {bySize && product.measure === 'area' && (
             <>
               <NumberBox label="Width" value={row.width} onChange={(v) => onChange({ width: v })} />
@@ -372,7 +387,7 @@ function LineRow({
           </p>
         )}
       </div>
-      <div className="flex items-start gap-2 sm:flex-col sm:items-end">
+      <div className="hidden sm:flex items-start gap-2 sm:flex-col sm:items-end">
         <p className="num pt-1 font-semibold text-slate-900">
           {priced ? rupees(priced.lineTotal) : '—'}
         </p>
@@ -404,15 +419,17 @@ export function NumberBox({
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <label className="block">
-      <span className="mb-0.5 block text-xs text-slate-500">{label}</span>
+    <label className="block flex-1 sm:flex-none">
+      <span className="mb-0.5 block text-[11px] sm:text-xs text-slate-500 whitespace-nowrap">{label}</span>
       <input
         inputMode="decimal"
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value.replace(/[^\d.]/g, ''))}
         onKeyDown={onKeyDown}
-        className={`num block rounded-md border-0 px-2 py-2 text-right text-sm ring-1 ring-slate-300 ring-inset focus:ring-2 focus:ring-brand-600 ${narrow ? 'w-14' : 'w-20'}`}
+        className={`num block w-full rounded-md border-0 px-2 py-1.5 sm:py-2 text-right text-sm ring-1 ring-slate-300 ring-inset focus:ring-2 focus:ring-brand-600 ${
+          narrow ? 'sm:w-14' : 'sm:w-20'
+        }`}
       />
     </label>
   );

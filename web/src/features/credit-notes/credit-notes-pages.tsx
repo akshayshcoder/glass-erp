@@ -54,14 +54,14 @@ export function CreditNotesPage() {
         subtitle="Returns and corrections. To create one, open the invoice and choose “Return / credit note”."
       />
       <Card>
-        <div className="border-b border-slate-200 p-4">
+        <div className="border-b border-slate-200 p-3 sm:p-4">
           <Select
             aria-label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-40"
+            className="w-full sm:w-48"
           >
-            <option value="">All</option>
+            <option value="">All status</option>
             <option value="posted">Posted</option>
             <option value="draft">Drafts</option>
             <option value="cancelled">Cancelled</option>

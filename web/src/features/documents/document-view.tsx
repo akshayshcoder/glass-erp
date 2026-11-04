@@ -49,8 +49,8 @@ export function LinesCard({
           </tr>
         ))}
       </Table>
-      <div className="flex justify-end border-t border-slate-200 p-5">
-        <dl className="num w-64 space-y-1 text-sm">
+      <div className="flex justify-end border-t border-slate-200 p-4 sm:p-5">
+        <dl className="num w-full sm:w-64 space-y-1 text-sm">
           <TotalsRows totals={totals} interState={interState} />
         </dl>
       </div>

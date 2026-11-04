@@ -67,8 +67,8 @@ export function InvoicesPage() {
         }
       />
       <Card>
-        <div className="flex flex-wrap gap-3 border-b border-slate-200 p-4">
-          <div className="relative min-w-60 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-2.5 sm:gap-3 border-b border-slate-200 p-3 sm:p-4">
+          <div className="relative col-span-1 sm:col-span-2 lg:flex-1 lg:min-w-60">
             <Search
               className="pointer-events-none absolute top-2.5 left-3 size-4 text-slate-400"
               aria-hidden
@@ -86,9 +86,9 @@ export function InvoicesPage() {
             aria-label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-36"
+            className="w-full lg:w-36"
           >
-            <option value="">All</option>
+            <option value="">All status</option>
             <option value="draft">Drafts</option>
             <option value="posted">Posted</option>
             <option value="cancelled">Cancelled</option>
@@ -98,14 +98,14 @@ export function InvoicesPage() {
             aria-label="From date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="w-40"
+            className="w-full lg:w-36"
           />
           <Input
             type="date"
             aria-label="To date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="w-40"
+            className="w-full lg:w-36"
           />
         </div>
         {error && (

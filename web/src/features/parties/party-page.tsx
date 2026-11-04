@@ -223,11 +223,11 @@ export function PartyPage() {
       )}
 
       {/* Tabs navigation */}
-      <div className="mb-4 flex gap-2 border-b border-slate-200 pb-2">
+      <div className="mb-4 flex gap-1.5 sm:gap-2 border-b border-slate-200 pb-2 overflow-x-auto">
         <button
           type="button"
           onClick={() => setActiveTab('statement')}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+          className={`shrink-0 rounded-md px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
             activeTab === 'statement'
               ? 'bg-brand-50 text-brand-700 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
@@ -238,7 +238,7 @@ export function PartyPage() {
         <button
           type="button"
           onClick={() => setActiveTab('unpaid')}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+          className={`shrink-0 rounded-md px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
             activeTab === 'unpaid'
               ? 'bg-brand-50 text-brand-700 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
@@ -249,7 +249,7 @@ export function PartyPage() {
         <button
           type="button"
           onClick={() => setActiveTab('wallet')}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+          className={`shrink-0 rounded-md px-3 py-1.5 text-xs sm:text-sm font-medium transition ${
             activeTab === 'wallet'
               ? 'bg-brand-50 text-brand-700 font-semibold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'

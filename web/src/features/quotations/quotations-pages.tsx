@@ -68,14 +68,14 @@ export function QuotationsPage() {
         }
       />
       <Card>
-        <div className="border-b border-slate-200 p-4">
+        <div className="border-b border-slate-200 p-3 sm:p-4">
           <Select
             aria-label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-44"
+            className="w-full sm:w-56"
           >
-            <option value="">All</option>
+            <option value="">All status</option>
             <option value="draft">Drafts</option>
             <option value="issued">Issued</option>
             <option value="accepted">Accepted</option>

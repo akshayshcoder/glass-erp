@@ -19,12 +19,12 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+    <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
+      <div className="min-w-0">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900 truncate">{title}</h1>
+        {subtitle && <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-500">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
     </div>
   );
 }
@@ -97,10 +97,18 @@ export function StatusBadge({ status }: { status: string }) {
   return <Badge tone={tone}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
 }
 
-/** A simple data table: pass header cells and rows. */
-export function Table({ head, children }: { head: ReactNode; children: ReactNode }) {
+/** A simple data table: pass header cells and rows. Supports smooth mobile scrolling with touch indicators. */
+export function Table({
+  head,
+  children,
+  className = '',
+}: {
+  head: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="overflow-x-auto">
+    <div className={`overflow-x-auto overscroll-x-contain -mx-px ${className}`}>
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50 text-left text-xs font-semibold tracking-wide text-slate-600 uppercase">
           <tr>{head}</tr>
@@ -111,8 +119,19 @@ export function Table({ head, children }: { head: ReactNode; children: ReactNode
   );
 }
 
-export const Th = ({ children, right }: { children?: ReactNode; right?: boolean }) => (
-  <th scope="col" className={`px-4 py-3 ${right ? 'text-right' : ''}`}>
+export const Th = ({
+  children,
+  right,
+  className = '',
+}: {
+  children?: ReactNode;
+  right?: boolean;
+  className?: string;
+}) => (
+  <th
+    scope="col"
+    className={`px-3 py-2.5 sm:px-4 sm:py-3 whitespace-nowrap ${right ? 'text-right' : ''} ${className}`}
+  >
     {children}
   </th>
 );
@@ -125,4 +144,8 @@ export const Td = ({
   children?: ReactNode;
   right?: boolean;
   className?: string;
-}) => <td className={`px-4 py-3 ${right ? 'num text-right' : ''} ${className}`}>{children}</td>;
+}) => (
+  <td className={`px-3 py-2.5 sm:px-4 sm:py-3 text-slate-600 ${right ? 'num text-right' : ''} ${className}`}>
+    {children}
+  </td>
+);

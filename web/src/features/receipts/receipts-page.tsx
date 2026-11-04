@@ -197,7 +197,7 @@ function ReceivePaymentModal({ onClose }: { onClose: () => void }) {
         ) : (
           <CustomerPicker onPick={setCustomer} autoFocus />
         )}
-        <div className="grid gap-3 sm:grid-cols-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           <Input
             label="Amount (₹)"
             required
@@ -232,7 +232,7 @@ function ReceivePaymentModal({ onClose }: { onClose: () => void }) {
               <p className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
                 Settlement Method ({bills.length} pending bill{bills.length > 1 ? 's' : ''})
               </p>
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="grid gap-2 grid-cols-1 sm:grid-cols-3">
                 <label
                   className={`flex cursor-pointer flex-col rounded-md border p-2.5 text-xs transition ${
                     settlementType === 'fifo'

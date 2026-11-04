@@ -65,20 +65,22 @@ export function StockPage() {
         }
       />
       <Card>
-        <div className="flex flex-wrap items-center gap-4 border-b border-slate-200 p-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 border-b border-slate-200 p-3 sm:p-4">
           <input
             type="search"
             placeholder="Search product by name, SKU, length or thickness…"
             aria-label="Search stock"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="block min-w-60 flex-1 rounded-md border-0 px-3 py-2 text-sm ring-1 ring-slate-300 ring-inset focus:ring-2 focus:ring-brand-600"
+            className="block w-full sm:flex-1 sm:min-w-60 rounded-md border-0 px-3 py-2 text-sm ring-1 ring-slate-300 ring-inset focus:ring-2 focus:ring-brand-600"
           />
-          <Checkbox
-            label="Only low stock"
-            checked={lowOnly}
-            onChange={(e) => setParams(e.target.checked ? { low: '1' } : {})}
-          />
+          <div className="shrink-0">
+            <Checkbox
+              label="Only low stock"
+              checked={lowOnly}
+              onChange={(e) => setParams(e.target.checked ? { low: '1' } : {})}
+            />
+          </div>
         </div>
         {error && (
           <div className="p-4">

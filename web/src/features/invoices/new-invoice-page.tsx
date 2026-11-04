@@ -151,8 +151,8 @@ export function NewInvoicePage() {
         subtitle={<>Ctrl + Enter to save &amp; post · Enter after a line to add the next product</>}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_21rem] xl:grid-cols-[1fr_23rem]">
+        <div className="space-y-4 sm:space-y-6">
           {branch && (
             <Card className="p-4">
               <div className="flex items-start justify-between gap-4">
@@ -203,14 +203,14 @@ export function NewInvoicePage() {
           )}
 
           <Card className="p-4">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
               <h2 className="text-sm font-semibold text-slate-900">Customer</h2>
               <Input
                 type="date"
                 aria-label="Bill date"
                 value={invoiceDate}
                 onChange={(e) => setInvoiceDate(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-40"
               />
             </div>
             {customer ? (
@@ -358,6 +358,35 @@ export function NewInvoicePage() {
               </Button>
             </div>
           </Card>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Quick Summary / Post Bar (< 1024px) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 py-2.5 shadow-lg flex items-center justify-between gap-3">
+        <div>
+          <span className="text-[11px] font-medium text-slate-500 uppercase block">Grand Total</span>
+          <span className="num text-lg font-bold text-slate-900">
+            ₹{formatMoney(total)}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => void save(false)}
+            loading={saving === 'draft'}
+            disabled={!!saving}
+          >
+            Draft
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => void save(true)}
+            loading={saving === 'post'}
+            disabled={!!saving}
+          >
+            Save &amp; Post
+          </Button>
         </div>
       </div>
     </div>

@@ -200,7 +200,7 @@ export function InvoicePage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         <Card className="p-5">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -314,8 +314,8 @@ export function InvoicePage() {
             </tr>
           ))}
         </Table>
-        <div className="flex justify-end border-t border-slate-200 p-5">
-          <dl className="num w-64 space-y-1 text-sm">
+        <div className="flex justify-end border-t border-slate-200 p-4 sm:p-5">
+          <dl className="num w-full sm:w-64 space-y-1 text-sm">
             <Row label="Taxable value" value={formatMoney(inv.taxableValue)} />
             {interState ? (
               <Row label="IGST" value={formatMoney(inv.igstAmount)} />

@@ -157,8 +157,8 @@ export function NewCreditNotePage() {
         subtitle={`Against ${inv.invoiceNo} · ${docCustomerLabel(inv.customerName, inv.customerType)}`}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_21rem] xl:grid-cols-[1fr_23rem]">
+        <div className="space-y-4 sm:space-y-6">
           <Card className="grid gap-4 p-4 sm:grid-cols-3">
             <Select
               label="Reason"

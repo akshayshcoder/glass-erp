@@ -125,8 +125,8 @@ function QuotationForm({ quotation }: { quotation: Quotation | null }) {
         title={quotation ? 'Edit quotation' : 'New quotation'}
         subtitle="Prices are before GST; GST is added below."
       />
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_21rem] xl:grid-cols-[1fr_23rem]">
+        <div className="space-y-4 sm:space-y-6">
           <Card className="space-y-3 p-4">
             <h2 className="text-sm font-semibold text-slate-900">Customer</h2>
             {customer ? (

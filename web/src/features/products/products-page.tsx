@@ -92,8 +92,8 @@ export function ProductsPage() {
         }
       />
       <Card>
-        <div className="flex flex-wrap gap-3 border-b border-slate-200 p-4">
-          <div className="relative min-w-60 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-2.5 sm:gap-3 border-b border-slate-200 p-3 sm:p-4">
+          <div className="relative col-span-1 sm:col-span-2 lg:flex-1 lg:min-w-60">
             <Search
               className="pointer-events-none absolute top-2.5 left-3 size-4 text-slate-400"
               aria-hidden
@@ -111,7 +111,7 @@ export function ProductsPage() {
             aria-label="Kind"
             value={kind}
             onChange={(e) => setKind(e.target.value)}
-            className="w-40"
+            className="w-full lg:w-40"
           >
             <option value="">All kinds</option>
             {KINDS.map((k) => (
@@ -124,7 +124,7 @@ export function ProductsPage() {
             aria-label="Status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-36"
+            className="w-full lg:w-36"
           >
             <option value="active">Active</option>
             <option value="inactive">Retired</option>
@@ -422,7 +422,7 @@ function ProductForm({ product, onClose }: { product: Product | null; onClose: (
               {previewSpec && <Badge tone="blue">{previewSpec}</Badge>}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-4">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
               <Input
                 label="Length / Size"
                 inputMode="decimal"
