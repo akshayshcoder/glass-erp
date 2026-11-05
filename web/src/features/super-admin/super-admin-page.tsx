@@ -83,15 +83,17 @@ export function SuperAdminPage() {
 
   const items = useMemo(() => {
     return (tenants ?? []).filter((t) => {
-      if (statusFilter && t.computedValidityState !== statusFilter && t.tenantStatus !== statusFilter) {
+      const validState = t.computedValidityState || (t as any).computed_validity_state;
+      const tStatus = t.tenantStatus || (t as any).tenant_status;
+      if (statusFilter && validState !== statusFilter && tStatus !== statusFilter) {
         return false;
       }
       if (q) {
-        const matchName = t.tenantName.toLowerCase().includes(q);
-        const matchLegal = t.legalName?.toLowerCase().includes(q);
-        const matchOwner = t.owner?.fullName?.toLowerCase().includes(q);
-        const matchPhone = t.owner?.phone?.includes(q);
-        const matchEmail = t.owner?.email?.toLowerCase().includes(q);
+        const matchName = (t.tenantName || (t as any).tenant_name || '').toLowerCase().includes(q);
+        const matchLegal = (t.legalName || (t as any).legal_name || '')?.toLowerCase().includes(q);
+        const matchOwner = (t.owner?.fullName || (t as any).owner?.fullName || '')?.toLowerCase().includes(q);
+        const matchPhone = (t.owner?.phone || (t as any).owner?.phone || '')?.includes(q);
+        const matchEmail = (t.owner?.email || (t as any).owner?.email || '')?.toLowerCase().includes(q);
         return matchName || matchLegal || matchOwner || matchPhone || matchEmail;
       }
       return true;
@@ -100,8 +102,10 @@ export function SuperAdminPage() {
 
   // Code generator helper (e.g. SHA952 or GL741)
   const getTenantCode = (t: SuperAdminTenant) => {
-    const letters = t.tenantName.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'TEN';
-    const digits = t.tenantId.replace(/[^0-9]/g, '').slice(0, 3) || '101';
+    const name = (t?.tenantName || (t as any)?.tenant_name || 'TEN').trim();
+    const id = (t?.tenantId || (t as any)?.tenant_id || '101').trim();
+    const letters = name.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() || 'TEN';
+    const digits = id.replace(/[^0-9]/g, '').slice(0, 3) || '101';
     return `${letters}${digits}`;
   };
 
@@ -111,7 +115,7 @@ export function SuperAdminPage() {
     if (allSelected) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(items.map((t) => t.tenantId));
+      setSelectedIds(items.map((t) => t.tenantId || (t as any).tenant_id));
     }
   };
 
@@ -254,13 +258,22 @@ export function SuperAdminPage() {
                   </thead>
                   <tbody className="divide-y divide-[#181c2d] text-slate-300">
                     {items.slice(0, perPage).map((t) => {
+                      const tenantId = t.tenantId || (t as any).tenant_id || '';
+                      const tenantName = t.tenantName || (t as any).tenant_name || 'Client';
+                      const legalName = t.legalName || (t as any).legal_name;
+                      const plan = t.plan || (t as any).plan || 'starter';
+                      const period = t.subscriptionPeriod || (t as any).subscription_period || 'annual';
+                      const tenantStatus = t.tenantStatus || (t as any).tenant_status || 'active';
+                      const validityState = t.computedValidityState || (t as any).computed_validity_state || 'active';
+                      const outstanding = t.outstandingDue || (t as any).outstanding_due || '0.00';
+                      const validUntil = t.subscriptionValidUntil || (t as any).subscription_valid_until;
                       const code = getTenantCode(t);
-                      const isSelected = selectedIds.includes(t.tenantId);
-                      const isOverdue = parseFloat(t.outstandingDue) > 0;
+                      const isSelected = selectedIds.includes(tenantId);
+                      const isOverdue = parseFloat(outstanding) > 0;
 
                       return (
                         <tr
-                          key={t.tenantId}
+                          key={tenantId}
                           className={`group transition-colors ${
                             isSelected ? 'bg-[#1b2033]' : 'hover:bg-[#151928]'
                           }`}
@@ -270,7 +283,7 @@ export function SuperAdminPage() {
                             <input
                               type="checkbox"
                               checked={isSelected}
-                              onChange={() => toggleSelectOne(t.tenantId)}
+                              onChange={() => toggleSelectOne(tenantId)}
                               className="size-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-500/30"
                             />
                           </td>
@@ -284,10 +297,10 @@ export function SuperAdminPage() {
 
                           {/* Firm Name (Bold White text) */}
                           <td className="px-4 py-3.5 font-bold text-white">
-                            <div>{t.tenantName}</div>
-                            {t.legalName && (
+                            <div>{tenantName}</div>
+                            {legalName && (
                               <div className="text-[11px] font-normal text-slate-500">
-                                {t.legalName}
+                                {legalName}
                               </div>
                             )}
                           </td>
@@ -305,21 +318,21 @@ export function SuperAdminPage() {
                           {/* Plan Badge (Amber pill matching reference) */}
                           <td className="px-4 py-3.5">
                             <span className="inline-flex items-center rounded-full border border-amber-600/30 bg-[#281b0f] px-2.5 py-0.5 text-xs font-medium text-amber-300 capitalize">
-                              {t.plan} ({t.subscriptionPeriod})
+                              {plan} ({period})
                             </span>
                           </td>
 
                           {/* Status Badge (Green / Red / Amber pill) */}
                           <td className="px-4 py-3.5">
-                            {t.tenantStatus === 'suspended' ? (
+                            {tenantStatus === 'suspended' ? (
                               <span className="inline-flex items-center rounded-full border border-red-800 bg-red-950/40 px-2.5 py-0.5 text-xs font-medium text-red-400">
                                 Suspended
                               </span>
-                            ) : t.computedValidityState === 'active' ? (
+                            ) : validityState === 'active' ? (
                               <span className="inline-flex items-center rounded-full border border-emerald-800 bg-emerald-950/40 px-2.5 py-0.5 text-xs font-medium text-emerald-300">
                                 Active
                               </span>
-                            ) : t.computedValidityState === 'grace_period' ? (
+                            ) : validityState === 'grace_period' ? (
                               <span className="inline-flex items-center rounded-full border border-amber-800 bg-amber-950/40 px-2.5 py-0.5 text-xs font-medium text-amber-400">
                                 Grace
                               </span>
@@ -333,13 +346,11 @@ export function SuperAdminPage() {
                           {/* Validity / Dues */}
                           <td className="px-4 py-3.5 text-right">
                             <div className="text-xs font-medium text-slate-300">
-                              {t.subscriptionValidUntil
-                                ? formatDate(t.subscriptionValidUntil)
-                                : 'Unlimited'}
+                              {validUntil ? formatDate(validUntil) : 'Lifetime / Active'}
                             </div>
                             {isOverdue && (
                               <div className="text-[11px] font-bold text-rose-400">
-                                Due: {rupees(t.outstandingDue)}
+                                Due: {rupees(outstanding)}
                               </div>
                             )}
                           </td>
@@ -349,7 +360,7 @@ export function SuperAdminPage() {
                             <div className="flex items-center justify-end gap-1.5">
                               {/* 1-Click Login into client ERP */}
                               <button
-                                onClick={() => impersonateMutation.mutate(t.tenantId)}
+                                onClick={() => impersonateMutation.mutate(tenantId)}
                                 disabled={impersonateMutation.isPending}
                                 title="Login as Client (Open their ERP)"
                                 className="inline-flex items-center gap-1 rounded-md bg-[#251d13] border border-[#f59e0b]/40 px-2.5 py-1 text-xs font-semibold text-[#f59e0b] hover:bg-[#332517] transition-all"
@@ -549,26 +560,34 @@ function SubscriptionInvoicesView({ tenants }: { tenants: SuperAdminTenant[] }) 
           </tr>
         </thead>
         <tbody className="divide-y divide-[#181c2d] text-slate-300">
-          {tenants.map((t) => (
-            <tr key={t.tenantId} className="hover:bg-[#151928]">
-              <td className="px-4 py-3 font-semibold text-white">{t.tenantName}</td>
-              <td className="px-4 py-3">{t.owner?.fullName} ({t.owner?.phone ?? '—'})</td>
-              <td className="px-4 py-3 font-mono font-medium">{rupees(t.totalInvoiced)}</td>
-              <td className="px-4 py-3 font-mono text-emerald-400">{rupees(t.totalPaid)}</td>
-              <td className="px-4 py-3 font-mono text-rose-400 font-bold">{rupees(t.outstandingDue)}</td>
-              <td className="px-4 py-3 text-right">
-                {parseFloat(t.outstandingDue) === 0 ? (
-                  <span className="rounded-full bg-emerald-950/50 border border-emerald-800 px-2 py-0.5 text-xs text-emerald-400">
-                    Fully Paid
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-rose-950/50 border border-rose-800 px-2 py-0.5 text-xs text-rose-400 font-semibold">
-                    Payment Due
-                  </span>
-                )}
-              </td>
-            </tr>
-          ))}
+          {tenants.map((t) => {
+            const tenantId = t.tenantId || (t as any).tenant_id || '';
+            const tenantName = t.tenantName || (t as any).tenant_name || 'Client';
+            const invoiced = t.totalInvoiced || (t as any).total_invoiced || '0.00';
+            const paid = t.totalPaid || (t as any).total_paid || '0.00';
+            const due = t.outstandingDue || (t as any).outstanding_due || '0.00';
+
+            return (
+              <tr key={tenantId} className="hover:bg-[#151928]">
+                <td className="px-4 py-3 font-semibold text-white">{tenantName}</td>
+                <td className="px-4 py-3">{t.owner?.fullName ?? '—'} ({t.owner?.phone ?? '—'})</td>
+                <td className="px-4 py-3 font-mono font-medium">{rupees(invoiced)}</td>
+                <td className="px-4 py-3 font-mono text-emerald-400">{rupees(paid)}</td>
+                <td className="px-4 py-3 font-mono text-rose-400 font-bold">{rupees(due)}</td>
+                <td className="px-4 py-3 text-right">
+                  {parseFloat(due) === 0 ? (
+                    <span className="rounded-full bg-emerald-950/50 border border-emerald-800 px-2 py-0.5 text-xs text-emerald-400">
+                      Fully Paid
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-rose-950/50 border border-rose-800 px-2 py-0.5 text-xs text-rose-400 font-semibold">
+                      Payment Due
+                    </span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -585,9 +604,11 @@ function CallingFollowupsView({
   tenants: SuperAdminTenant[];
   onExtend: (t: SuperAdminTenant) => void;
 }) {
-  const followups = tenants.filter(
-    (t) => t.computedValidityState !== 'active' || parseFloat(t.outstandingDue) > 0,
-  );
+  const followups = tenants.filter((t) => {
+    const validity = t.computedValidityState || (t as any).computed_validity_state;
+    const due = t.outstandingDue || (t as any).outstanding_due || '0';
+    return validity !== 'active' || parseFloat(due) > 0;
+  });
 
   return (
     <div className="space-y-4">
@@ -617,56 +638,63 @@ function CallingFollowupsView({
                 </td>
               </tr>
             ) : (
-              followups.map((t) => (
-                <tr key={t.tenantId} className="hover:bg-[#151928]">
-                  <td className="px-4 py-3 font-bold text-white">{t.tenantName}</td>
-                  <td className="px-4 py-3">{t.owner?.fullName ?? '—'}</td>
-                  <td className="px-4 py-3 font-mono font-medium text-amber-400">
-                    {t.owner?.phone ?? '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-rose-400 font-semibold">
-                      {t.computedValidityState === 'expired'
-                        ? 'Expired'
-                        : t.computedValidityState === 'grace_period'
-                        ? 'In Grace Period'
-                        : 'Due: ' + rupees(t.outstandingDue)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {t.owner?.phone && (
-                        <a
-                          href={`tel:${t.owner.phone}`}
-                          className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-xs text-white hover:bg-slate-700"
+              followups.map((t) => {
+                const tenantId = t.tenantId || (t as any).tenant_id || '';
+                const tenantName = t.tenantName || (t as any).tenant_name || 'Client';
+                const validity = t.computedValidityState || (t as any).computed_validity_state;
+                const due = t.outstandingDue || (t as any).outstanding_due || '0.00';
+
+                return (
+                  <tr key={tenantId} className="hover:bg-[#151928]">
+                    <td className="px-4 py-3 font-bold text-white">{tenantName}</td>
+                    <td className="px-4 py-3">{t.owner?.fullName ?? '—'}</td>
+                    <td className="px-4 py-3 font-mono font-medium text-amber-400">
+                      {t.owner?.phone ?? '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-rose-400 font-semibold">
+                        {validity === 'expired'
+                          ? 'Expired'
+                          : validity === 'grace_period'
+                          ? 'In Grace Period'
+                          : 'Due: ' + rupees(due)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {t.owner?.phone && (
+                          <a
+                            href={`tel:${t.owner.phone}`}
+                            className="inline-flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-xs text-white hover:bg-slate-700"
+                          >
+                            <Phone className="size-3 text-emerald-400" />
+                            <span>Call</span>
+                          </a>
+                        )}
+                        {t.owner?.phone && (
+                          <a
+                            href={`https://wa.me/91${t.owner.phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(
+                              t.owner.fullName || tenantName,
+                            )},%20your%20ERP%20subscription%20renewal%20is%20due.%20Please%20contact%20us%20for%20renewal.`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded bg-[#075e54] px-2 py-1 text-xs text-white hover:bg-[#128c7e]"
+                          >
+                            <MessageSquare className="size-3" />
+                            <span>WhatsApp</span>
+                          </a>
+                        )}
+                        <button
+                          onClick={() => onExtend(t)}
+                          className="rounded bg-amber-500/10 border border-amber-500/30 px-2 py-1 text-xs font-semibold text-amber-400 hover:bg-amber-500/20"
                         >
-                          <Phone className="size-3 text-emerald-400" />
-                          <span>Call</span>
-                        </a>
-                      )}
-                      {t.owner?.phone && (
-                        <a
-                          href={`https://wa.me/91${t.owner.phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(
-                            t.owner.fullName || t.tenantName,
-                          )},%20your%20ERP%20subscription%20renewal%20is%20due.%20Please%20contact%20us%20for%20renewal.`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 rounded bg-[#075e54] px-2 py-1 text-xs text-white hover:bg-[#128c7e]"
-                        >
-                          <MessageSquare className="size-3" />
-                          <span>WhatsApp</span>
-                        </a>
-                      )}
-                      <button
-                        onClick={() => onExtend(t)}
-                        className="rounded bg-amber-500/10 border border-amber-500/30 px-2 py-1 text-xs font-semibold text-amber-400 hover:bg-amber-500/20"
-                      >
-                        Extend Plan
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                          Extend Plan
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -912,6 +940,9 @@ function FeatureTogglesModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const tenantId = tenant.tenantId || (tenant as any).tenant_id || '';
+  const tenantName = tenant.tenantName || (tenant as any).tenant_name || 'Client';
+
   const [features, setFeatures] = useState({
     billing: tenant.features?.billing ?? true,
     inventory: tenant.features?.inventory ?? true,
@@ -936,7 +967,7 @@ function FeatureTogglesModal({
     setLoading(true);
     setError(null);
     try {
-      await api(`/v1/super-admin/tenants/${tenant.tenantId}/features`, {
+      await api(`/v1/super-admin/tenants/${tenantId}/features`, {
         method: 'PUT',
         body: JSON.stringify(features),
       });
@@ -958,7 +989,7 @@ function FeatureTogglesModal({
               <Sliders className="size-4 text-amber-500" />
               <span>Feature Entitlements</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">{tenant.tenantName}</p>
+            <p className="text-xs text-slate-400 mt-0.5">{tenantName}</p>
           </div>
           <button onClick={onClose} className="rounded p-1 text-slate-400 hover:text-white">
             <X className="size-5" />
@@ -1024,10 +1055,14 @@ function ExtendValidityModal({
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
+  const tenantId = tenant.tenantId || (tenant as any).tenant_id || '';
+  const tenantName = tenant.tenantName || (tenant as any).tenant_name || 'Client';
+  const validUntil = tenant.subscriptionValidUntil || (tenant as any).subscription_valid_until;
+
   async function handleExtend(d: number) {
     setLoading(true);
     try {
-      await api(`/v1/super-admin/tenants/${tenant.tenantId}/extend-validity`, {
+      await api(`/v1/super-admin/tenants/${tenantId}/extend-validity`, {
         method: 'POST',
         body: JSON.stringify({ days: d }),
       });
@@ -1054,13 +1089,13 @@ function ExtendValidityModal({
         </div>
 
         <p className="text-xs text-slate-400">
-          Firm: <span className="text-white font-semibold">{tenant.tenantName}</span>
+          Firm: <span className="text-white font-semibold">{tenantName}</span>
         </p>
 
         <p className="text-xs text-slate-400">
           Current Valid Until:{' '}
           <span className="font-semibold text-white">
-            {tenant.subscriptionValidUntil ? formatDate(tenant.subscriptionValidUntil) : 'None'}
+            {validUntil ? formatDate(validUntil) : 'None'}
           </span>
         </p>
 
@@ -1115,8 +1150,13 @@ function RecordPaymentModal({
 }) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+
+  const tenantId = tenant.tenantId || (tenant as any).tenant_id || '';
+  const tenantName = tenant.tenantName || (tenant as any).tenant_name || 'Client';
+  const outstanding = tenant.outstandingDue || (tenant as any).outstanding_due || '0.00';
+
   const [amount, setAmount] = useState(
-    tenant.outstandingDue !== '0.00' ? tenant.outstandingDue : '12000.00',
+    outstanding !== '0.00' ? outstanding : '12000.00',
   );
   const [mode, setMode] = useState<'upi' | 'bank_transfer' | 'cheque' | 'cash'>('upi');
   const [referenceNo, setReferenceNo] = useState('');
@@ -1126,7 +1166,7 @@ function RecordPaymentModal({
     e.preventDefault();
     setLoading(true);
     try {
-      await api(`/v1/super-admin/tenants/${tenant.tenantId}/payments`, {
+      await api(`/v1/super-admin/tenants/${tenantId}/payments`, {
         method: 'POST',
         body: JSON.stringify({
           amount,
@@ -1158,7 +1198,7 @@ function RecordPaymentModal({
         </div>
 
         <p className="text-xs text-slate-400">
-          Firm: <span className="text-white font-semibold">{tenant.tenantName}</span>
+          Firm: <span className="text-white font-semibold">{tenantName}</span>
         </p>
 
         <form onSubmit={handleRecord} className="space-y-3 text-xs sm:text-sm">

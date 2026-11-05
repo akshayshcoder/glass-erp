@@ -102,7 +102,30 @@ export function registerSuperAdminRoutes(app: FastifyInstance, { guards, tokens 
          FROM erp.v_tenant_subscription_summary v
          ORDER BY v.created_at DESC`,
       );
-      return rows;
+      return rows.map((r: any) => ({
+        tenantId: r.tenant_id,
+        tenantName: r.tenant_name ?? '',
+        legalName: r.legal_name ?? null,
+        tenantStatus: r.tenant_status ?? 'active',
+        plan: r.plan ?? 'starter',
+        subscriptionStatus: r.subscription_status ?? 'active',
+        subscriptionPeriod: r.subscription_period ?? 'annual',
+        subscriptionAmount: r.subscription_amount ?? '0.00',
+        subscriptionValidUntil: r.subscription_valid_until ?? null,
+        gracePeriodDays: Number(r.grace_period_days ?? 7),
+        maxBranches: Number(r.max_branches ?? 1),
+        maxUsers: Number(r.max_users ?? 5),
+        features: r.features ?? {},
+        adminNotes: r.admin_notes ?? null,
+        createdAt: r.created_at,
+        totalInvoiced: r.total_invoiced ?? '0.00',
+        totalPaid: r.total_paid ?? '0.00',
+        outstandingDue: r.outstanding_due ?? '0.00',
+        computedValidityState: r.computed_validity_state ?? 'active',
+        owner: r.owner ?? null,
+        activeUsersCount: Number(r.active_users_count ?? 1),
+        activeBranchesCount: Number(r.active_branches_count ?? 1),
+      }));
     });
   });
 
@@ -276,17 +299,42 @@ export function registerSuperAdminRoutes(app: FastifyInstance, { guards, tokens 
   app.get('/super-admin/tenants/:id/payments', guard, async (request) => {
     const { id } = IdParams.parse(request.params);
     return request.tx(async (c) => {
-      const payments = await query(
+      const payments = await query<Record<string, any>>(
         c,
         'SELECT * FROM erp.platform_payments WHERE tenant_id = $1 ORDER BY payment_date DESC, created_at DESC',
         [id],
       );
-      const invoices = await query(
+      const invoices = await query<Record<string, any>>(
         c,
         'SELECT * FROM erp.platform_invoices WHERE tenant_id = $1 ORDER BY due_date DESC',
         [id],
       );
-      return { payments, invoices };
+      return {
+        payments: payments.map((p) => ({
+          id: p.id,
+          tenantId: p.tenant_id,
+          invoiceId: p.invoice_id,
+          amount: p.amount,
+          paymentDate: p.payment_date,
+          mode: p.mode,
+          referenceNo: p.reference_no,
+          notes: p.notes,
+          createdAt: p.created_at,
+        })),
+        invoices: invoices.map((inv) => ({
+          id: inv.id,
+          tenantId: inv.tenant_id,
+          invoiceNo: inv.invoice_no,
+          billingPeriodStart: inv.billing_period_start,
+          billingPeriodEnd: inv.billing_period_end,
+          amount: inv.amount,
+          status: inv.status,
+          dueDate: inv.due_date,
+          paidAt: inv.paid_at,
+          notes: inv.notes,
+          createdAt: inv.created_at,
+        })),
+      };
     });
   });
 

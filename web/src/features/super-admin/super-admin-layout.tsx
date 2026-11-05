@@ -61,11 +61,28 @@ const SA_NAV: NavSection[] = [
 ];
 
 export function SuperAdminLayout() {
-  const { me, signOut, selectShop } = useAuth();
+  const { me, status, signOut, selectShop } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // While auth status is verifying, show sleek dark loader
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0c13] text-amber-500">
+        <div className="flex items-center gap-3">
+          <div className="size-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <span className="text-sm font-medium text-slate-300">Loading SaaS Admin…</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If signed out, redirect to sign-in
+  if (status === 'signedOut') {
+    return <Navigate to="/sign-in" replace />;
+  }
 
   // Security guard: must be platform admin
   if (!me?.user.isPlatformAdmin) {
