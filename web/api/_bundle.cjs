@@ -197617,8 +197617,10 @@ function registerStockRoutes(app, { guards }) {
 // ../api/src/modules/super-admin/super-admin.ts
 var TenantCreateSchema = external_exports.object({
   name: NonEmpty,
-  legalName: external_exports.string().trim().nullable().optional(),
-  pan: external_exports.string().trim().toUpperCase().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "Invalid PAN").nullable().optional(),
+  legalName: external_exports.string().trim().optional().transform((v) => v || void 0),
+  pan: external_exports.string().trim().toUpperCase().optional().transform((v) => v || void 0).pipe(
+    external_exports.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, "Invalid PAN").optional()
+  ),
   plan: external_exports.enum(["trial", "starter", "professional", "enterprise"]).default("starter"),
   subscriptionPeriod: external_exports.enum(["monthly", "quarterly", "annual", "lifetime"]).default("annual"),
   subscriptionAmount: PositiveMoney.default("0.00"),
@@ -197630,8 +197632,8 @@ var TenantCreateSchema = external_exports.object({
   adminNotes: external_exports.string().trim().max(2e3).optional(),
   owner: external_exports.object({
     fullName: NonEmpty,
-    phone: Phone.optional(),
-    email: Email.optional(),
+    phone: external_exports.string().trim().optional().transform((v) => v || void 0).pipe(Phone.optional()),
+    email: external_exports.string().trim().toLowerCase().optional().transform((v) => v || void 0).pipe(Email.optional()),
     password: external_exports.string().min(8, "Password must be at least 8 characters")
   }).refine((o) => o.phone || o.email, {
     message: "Owner phone or email is required",
@@ -197641,7 +197643,7 @@ var TenantCreateSchema = external_exports.object({
     code: external_exports.string().trim().toUpperCase().regex(/^[A-Z0-9]{1,4}$/).default("MAIN"),
     name: NonEmpty.default("Main Branch"),
     stateCode: StateCode.default("07"),
-    gstin: Gstin.optional()
+    gstin: external_exports.string().trim().toUpperCase().optional().transform((v) => v || void 0).pipe(Gstin.optional())
   })
 });
 var TenantUpdateSchema = external_exports.object({

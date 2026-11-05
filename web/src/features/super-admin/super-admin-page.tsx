@@ -738,28 +738,28 @@ function OnboardTenantModal({ onClose, onSuccess }: { onClose: () => void; onSuc
     try {
       await api('/v1/super-admin/tenants', {
         method: 'POST',
-        body: JSON.stringify({
-          name: form.name,
-          legalName: form.legalName || undefined,
-          pan: form.pan || undefined,
+        body: {
+          name: form.name.trim(),
+          legalName: form.legalName.trim() || undefined,
+          pan: form.pan.trim().toUpperCase() || undefined,
           plan: form.plan,
           subscriptionPeriod: form.subscriptionPeriod,
-          subscriptionAmount: form.subscriptionAmount,
+          subscriptionAmount: form.subscriptionAmount.trim() || '0.00',
           subscriptionValidUntil: form.subscriptionValidUntil || undefined,
-          gracePeriodDays: form.gracePeriodDays,
+          gracePeriodDays: Number(form.gracePeriodDays) || 7,
           owner: {
-            fullName: form.ownerFullName,
-            phone: form.ownerPhone || undefined,
-            email: form.ownerEmail || undefined,
+            fullName: form.ownerFullName.trim(),
+            phone: form.ownerPhone.trim() || undefined,
+            email: form.ownerEmail.trim().toLowerCase() || undefined,
             password: form.ownerPassword,
           },
           branch: {
-            code: form.branchCode,
-            name: form.branchName,
-            stateCode: form.stateCode,
-            gstin: form.gstin || undefined,
+            code: (form.branchCode || 'MAIN').trim().toUpperCase(),
+            name: (form.branchName || 'Main Branch').trim(),
+            stateCode: (form.stateCode || '07').trim(),
+            gstin: form.gstin.trim().toUpperCase() || undefined,
           },
-        }),
+        },
       });
 
       toast('Client onboarded successfully!', 'success');
@@ -969,7 +969,7 @@ function FeatureTogglesModal({
     try {
       await api(`/v1/super-admin/tenants/${tenantId}/features`, {
         method: 'PUT',
-        body: JSON.stringify(features),
+        body: features,
       });
       toast('Features updated successfully', 'success');
       onSuccess();
@@ -1064,7 +1064,7 @@ function ExtendValidityModal({
     try {
       await api(`/v1/super-admin/tenants/${tenantId}/extend-validity`, {
         method: 'POST',
-        body: JSON.stringify({ days: d }),
+        body: { days: d },
       });
       toast(`Subscription extended by ${d} days!`, 'success');
       onSuccess();
@@ -1168,12 +1168,12 @@ function RecordPaymentModal({
     try {
       await api(`/v1/super-admin/tenants/${tenantId}/payments`, {
         method: 'POST',
-        body: JSON.stringify({
-          amount,
+        body: {
+          amount: amount.trim(),
           mode,
-          referenceNo: referenceNo || undefined,
-          notes: notes || undefined,
-        }),
+          referenceNo: referenceNo.trim() || undefined,
+          notes: notes.trim() || undefined,
+        },
       });
       toast('Payment recorded successfully', 'success');
       onSuccess();

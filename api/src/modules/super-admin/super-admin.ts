@@ -17,8 +17,10 @@ import {
 
 const TenantCreateSchema = z.object({
   name: NonEmpty,
-  legalName: z.string().trim().nullable().optional(),
-  pan: z.string().trim().toUpperCase().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, 'Invalid PAN').nullable().optional(),
+  legalName: z.string().trim().optional().transform((v) => v || undefined),
+  pan: z.string().trim().toUpperCase().optional().transform((v) => v || undefined).pipe(
+    z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, 'Invalid PAN').optional()
+  ),
   plan: z.enum(['trial', 'starter', 'professional', 'enterprise']).default('starter'),
   subscriptionPeriod: z.enum(['monthly', 'quarterly', 'annual', 'lifetime']).default('annual'),
   subscriptionAmount: PositiveMoney.default('0.00'),
@@ -30,8 +32,8 @@ const TenantCreateSchema = z.object({
   adminNotes: z.string().trim().max(2000).optional(),
   owner: z.object({
     fullName: NonEmpty,
-    phone: Phone.optional(),
-    email: Email.optional(),
+    phone: z.string().trim().optional().transform((v) => v || undefined).pipe(Phone.optional()),
+    email: z.string().trim().toLowerCase().optional().transform((v) => v || undefined).pipe(Email.optional()),
     password: z.string().min(8, 'Password must be at least 8 characters'),
   }).refine((o) => o.phone || o.email, {
     message: 'Owner phone or email is required',
@@ -41,7 +43,7 @@ const TenantCreateSchema = z.object({
     code: z.string().trim().toUpperCase().regex(/^[A-Z0-9]{1,4}$/).default('MAIN'),
     name: NonEmpty.default('Main Branch'),
     stateCode: StateCode.default('07'),
-    gstin: Gstin.optional(),
+    gstin: z.string().trim().toUpperCase().optional().transform((v) => v || undefined).pipe(Gstin.optional()),
   }),
 });
 

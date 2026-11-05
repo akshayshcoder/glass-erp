@@ -148,7 +148,9 @@ export async function apiFetch(
       ...(tenantId && { 'x-tenant-id': tenantId }),
       ...opts.headers,
     },
-    ...(opts.body !== undefined && { body: JSON.stringify(opts.body) }),
+    ...(opts.body !== undefined && {
+      body: typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body),
+    }),
   });
 
   if (res.ok) return res;
