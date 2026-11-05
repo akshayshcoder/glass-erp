@@ -27,6 +27,7 @@ import {
   StockValueReportPage,
 } from '../features/reports/reports-pages';
 import { StockPage } from '../features/stock/stock-page';
+import { SuperAdminLayout } from '../features/super-admin/super-admin-layout';
 import { SuperAdminPage } from '../features/super-admin/super-admin-page';
 import { RequireAuth, RequireShop } from './app-layout';
 
@@ -41,6 +42,11 @@ export const router = createBrowserRouter([
     element: <RequireAuth />,
     children: [
       { path: '/shops', element: <ShopsPage /> },
+      {
+        path: '/super-admin',
+        element: <SuperAdminLayout />,
+        children: [{ index: true, element: <SuperAdminPage /> }],
+      },
       {
         element: <RequireShop />,
         children: [
@@ -78,8 +84,6 @@ export const router = createBrowserRouter([
           { path: '/settings/team', element: <TeamPage /> },
           { path: '/settings/branches', element: <BranchesPage /> },
           { path: '/settings/gst', element: <GstPeriodsPage /> },
-          // Super Admin Platform
-          { path: '/super-admin', element: <SuperAdminPage /> },
         ],
       },
     ],
