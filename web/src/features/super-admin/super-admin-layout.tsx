@@ -257,8 +257,24 @@ export function SuperAdminLayout() {
             </div>
           </div>
 
-          {/* User Avatar & Dropdown */}
-          <div className="relative">
+          {/* Header Right Actions */}
+          <div className="flex items-center gap-3">
+            {shops.length > 0 && (
+              <button
+                onClick={() => {
+                  selectShop(shops[0]!.tenantId);
+                  navigate('/');
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2b3248] bg-[#161a29] px-3 py-1.5 text-xs font-semibold text-slate-200 hover:border-amber-500/50 hover:bg-[#1d2235] hover:text-white transition-all shadow-sm"
+                title="Open Store ERP"
+              >
+                <Store className="size-3.5 text-amber-400" />
+                <span>Open Store ERP</span>
+              </button>
+            )}
+
+            {/* User Avatar & Dropdown */}
+            <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center gap-2 rounded-full p-1 hover:ring-2 hover:ring-amber-500/50 transition-all"
@@ -310,6 +326,7 @@ export function SuperAdminLayout() {
                 </div>
               </>
             )}
+            </div>
           </div>
         </header>
 
