@@ -724,10 +724,6 @@ function OnboardTenantModal({ onClose, onSuccess }: { onClose: () => void; onSuc
     ownerPhone: '',
     ownerEmail: '',
     ownerPassword: '',
-    branchName: 'Main Branch',
-    branchCode: 'MAIN',
-    stateCode: '07',
-    gstin: '',
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -752,12 +748,6 @@ function OnboardTenantModal({ onClose, onSuccess }: { onClose: () => void; onSuc
             phone: form.ownerPhone.trim() || undefined,
             email: form.ownerEmail.trim().toLowerCase() || undefined,
             password: form.ownerPassword,
-          },
-          branch: {
-            code: (form.branchCode || 'MAIN').trim().toUpperCase(),
-            name: (form.branchName || 'Main Branch').trim(),
-            stateCode: (form.stateCode || '07').trim(),
-            gstin: form.gstin.trim().toUpperCase() || undefined,
           },
         },
       });

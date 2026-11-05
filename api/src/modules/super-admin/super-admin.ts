@@ -44,7 +44,7 @@ const TenantCreateSchema = z.object({
     name: NonEmpty.default('Main Branch'),
     stateCode: StateCode.default('07'),
     gstin: z.string().trim().toUpperCase().optional().transform((v) => v || undefined).pipe(Gstin.optional()),
-  }),
+  }).optional().default({ code: 'MAIN', name: 'Main Branch', stateCode: '07' }),
 });
 
 const TenantUpdateSchema = z.object({
@@ -201,10 +201,11 @@ export function registerSuperAdminRoutes(app: FastifyInstance, { guards, tokens 
       );
 
       // 4. Create initial branch
+      const branch = body.branch ?? { code: 'MAIN', name: 'Main Branch', stateCode: '07', gstin: null };
       await c.query(
         `INSERT INTO erp.branches (tenant_id, code, name, state_code, gstin)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tenantId, body.branch.code, body.branch.name, body.branch.stateCode, body.branch.gstin ?? null],
+        [tenantId, branch.code, branch.name, branch.stateCode, branch.gstin ?? null],
       );
 
       // 5. If subscription amount > 0, generate initial platform invoice

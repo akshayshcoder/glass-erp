@@ -197644,7 +197644,7 @@ var TenantCreateSchema = external_exports.object({
     name: NonEmpty.default("Main Branch"),
     stateCode: StateCode.default("07"),
     gstin: external_exports.string().trim().toUpperCase().optional().transform((v) => v || void 0).pipe(Gstin.optional())
-  })
+  }).optional().default({ code: "MAIN", name: "Main Branch", stateCode: "07" })
 });
 var TenantUpdateSchema = external_exports.object({
   name: NonEmpty.optional(),
@@ -197781,10 +197781,11 @@ function registerSuperAdminRoutes(app, { guards, tokens }) {
         `INSERT INTO erp.tenant_members (tenant_id, user_id, role) VALUES ($1, $2, 'owner')`,
         [tenantId, ownerId]
       );
+      const branch = body.branch ?? { code: "MAIN", name: "Main Branch", stateCode: "07", gstin: null };
       await c.query(
         `INSERT INTO erp.branches (tenant_id, code, name, state_code, gstin)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tenantId, body.branch.code, body.branch.name, body.branch.stateCode, body.branch.gstin ?? null]
+        [tenantId, branch.code, branch.name, branch.stateCode, branch.gstin ?? null]
       );
       if (Number(body.subscriptionAmount) > 0) {
         const invNo = `SUB-${(/* @__PURE__ */ new Date()).getFullYear()}-${tenantId.slice(0, 6).toUpperCase()}`;
