@@ -28,23 +28,32 @@ function AuthCard({
 }
 
 export function LoginPage() {
-  const { status, signIn } = useAuth();
+  const { me, status, signIn } = useAuth();
   const navigate = useNavigate();
-  const from = (useLocation().state as { from?: string } | null)?.from ?? '/';
+  const location = useLocation();
+  const rawFrom = (location.state as { from?: string } | null)?.from ?? '/';
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  if (status === 'signedIn') return <Navigate to={from} replace />;
+  if (status === 'signedIn') {
+    const target = (!me?.user.isPlatformAdmin && rawFrom.startsWith('/super-admin')) ? '/' : rawFrom;
+    return <Navigate to={target} replace />;
+  }
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      await signIn(login.trim(), password);
-      navigate(from, { replace: true });
+      const fresh = await signIn(login.trim(), password);
+      let target = rawFrom;
+      // Clients must never be redirected to /super-admin
+      if (!fresh.user.isPlatformAdmin && target.startsWith('/super-admin')) {
+        target = '/';
+      }
+      navigate(target, { replace: true });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

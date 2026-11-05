@@ -84,33 +84,9 @@ export function SuperAdminLayout() {
     return <Navigate to="/sign-in" replace />;
   }
 
-  // Security guard: must be platform admin
+  // Security guard: must be platform admin. Normal clients are seamlessly forwarded to their Store ERP
   if (!me?.user.isPlatformAdmin) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0d0f17] p-4 text-center">
-        <div className="w-full max-w-md rounded-xl border border-red-900/40 bg-[#161926] p-8 text-white shadow-2xl">
-          <Shield className="mx-auto size-12 text-red-400 mb-3" />
-          <h1 className="text-xl font-bold">Access Restricted</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Platform Super Admin access is required to manage SaaS client tenants and subscriptions.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link
-              to="/"
-              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
-            >
-              Go to Store ERP
-            </Link>
-            <button
-              onClick={() => void signOut()}
-              className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   const shops = me.memberships ?? [];

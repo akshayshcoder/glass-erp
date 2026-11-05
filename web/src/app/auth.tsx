@@ -25,13 +25,13 @@ interface AuthContextValue {
   tenantId: string | null;
   role: Role | null;
   shopName: string | null;
-  signIn(login: string, password: string): Promise<void>;
+  signIn(login: string, password: string): Promise<Me>;
   register(input: {
     fullName: string;
     phone?: string;
     email?: string;
     password: string;
-  }): Promise<void>;
+  }): Promise<Me>;
   signOut(): Promise<void>;
   selectShop(tenantId: string | null): void;
   reloadMe(): Promise<Me>;
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             noTenant: true,
           }),
         );
-        await reloadMe();
+        return await reloadMe();
       },
       async register(input) {
         await api('/v1/auth/register', { method: 'POST', body: input, noTenant: true });
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             noTenant: true,
           }),
         );
-        await reloadMe();
+        return await reloadMe();
       },
       async signOut() {
         await api('/v1/auth/logout', { method: 'POST', noTenant: true }).catch(() => {});
